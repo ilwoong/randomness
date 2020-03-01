@@ -1,5 +1,6 @@
-# Visual Studio Code files
+# Directories
 .vscode
+sandbox
 
 # Prerequisites
 *.d
