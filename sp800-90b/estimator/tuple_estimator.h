@@ -44,10 +44,10 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         std::string Name() const override;
 
     protected:
-        std::vector<int64_t> GetMaximumTupleCounts(const LcpArray& lcp, size_t length);
+        std::vector<size_t> GetMaximumTupleCounts(const LcpArray& lcp, size_t length);
 
     private:
-        double CalculateMaximumProbability(const std::vector<int64_t>& Q, size_t length) const;
+        double CalculateMaximumProbability(const std::vector<size_t>& Q, size_t length) const;
     };
 }}}
 

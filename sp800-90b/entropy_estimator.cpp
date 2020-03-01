@@ -33,7 +33,7 @@ static constexpr double ZALPHA = 2.5758293035489008;
 
 double EntropyEstimator::UpperBoundProbability(double prob, size_t length) const
 {
-    auto upper_bound = std::min(1.0, prob + ZALPHA * sqrt(prob * (1.0 - prob) / (length -1.0)));
+    auto upper_bound = std::min(1.0, prob + ZALPHA * sqrt(prob * (1.0 - prob) / (length - 1.0)));
     return -log2(upper_bound);
 }
 

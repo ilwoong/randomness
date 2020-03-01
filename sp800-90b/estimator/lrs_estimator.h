@@ -41,8 +41,8 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         double Estimate(const uint8_t* data, size_t length, size_t count_alphabets) override;
 
     private:
-        std::vector<int64_t> GetLRS(const LcpArray& lcp, size_t length);
-        double CalculateMaximumProbability(const std::vector<int64_t>& S, size_t v, size_t length) const;
+        std::vector<size_t> GetLRS(const LcpArray& lcp, size_t length);
+        double CalculateMaximumProbability(const std::vector<size_t>& S, size_t v, size_t length) const;
     };
 }}}
 

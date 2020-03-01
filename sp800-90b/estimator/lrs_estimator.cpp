@@ -46,7 +46,7 @@ double LrsEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
     return UpperBoundProbability(pmax, len);
 }
 
-double LrsEstimator::CalculateMaximumProbability(const std::vector<int64_t>& S, size_t v, size_t length) const
+double LrsEstimator::CalculateMaximumProbability(const std::vector<size_t>& S, size_t v, size_t length) const
 {
     auto pmax = 0.0;
     for (size_t i = u; i <= v; ++i) {
@@ -61,13 +61,13 @@ double LrsEstimator::CalculateMaximumProbability(const std::vector<int64_t>& S, 
     return pmax;
 }
 
-std::vector<int64_t> LrsEstimator::GetLRS(const LcpArray& lcp, size_t length)
+std::vector<size_t> LrsEstimator::GetLRS(const LcpArray& lcp, size_t length)
 {    
     auto max_lcp = lcp.Max();
 
     auto Q = GetMaximumTupleCounts(lcp, length);
-    auto A = std::vector<int64_t>(max_lcp + 2, 0);
-    auto S = std::vector<int64_t>(max_lcp + 1, 0);
+    auto A = std::vector<size_t>(max_lcp + 2, 0);
+    auto S = std::vector<size_t>(max_lcp + 1, 0);
 
     for (size_t i = 1; i <= length; ++i) {
         if ((lcp[i - 1] >= u) && (lcp[i] < lcp[i - 1])) {

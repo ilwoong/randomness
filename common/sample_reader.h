@@ -38,11 +38,13 @@ namespace randomness { namespace common {
     {
     private:
         std::ifstream ifs;
+        size_t length;
 
     public:
-        size_t Open(const std::string& filepath);
+        void Open(const std::string& filepath);
         void Close();
 
+        size_t Length() const;
         SharePtrSample NextBits(size_t length);
         SharePtrSample NextBytes(size_t length);
 

@@ -48,7 +48,7 @@ double TupleEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_siz
     return UpperBoundProbability(pmax, len);
 }
 
-double TupleEstimator::CalculateMaximumProbability(const std::vector<int64_t>& Q, size_t length) const
+double TupleEstimator::CalculateMaximumProbability(const std::vector<size_t>& Q, size_t length) const
 {
     auto pmax = -1.0;
     for (size_t i = 1; i < u; ++i) {
@@ -63,12 +63,12 @@ double TupleEstimator::CalculateMaximumProbability(const std::vector<int64_t>& Q
     return pmax;
 }
 
-std::vector<int64_t> TupleEstimator::GetMaximumTupleCounts(const LcpArray& lcp, size_t length)
+std::vector<size_t> TupleEstimator::GetMaximumTupleCounts(const LcpArray& lcp, size_t length)
 {
     auto max_lcp = lcp.Max();
-    auto Q = std::vector<int64_t>(max_lcp + 1, 1);
-    auto A = std::vector<int64_t>(max_lcp + 2, 0);
-    auto I = std::vector<int64_t>(max_lcp + 3, 0);
+    auto Q = std::vector<size_t>(max_lcp + 1, 1);
+    auto A = std::vector<size_t>(max_lcp + 2, 0);
+    auto I = std::vector<size_t>(max_lcp + 3, 0);
 
     int64_t j = 0;
     for (size_t i = 1; i <= length; ++i) {

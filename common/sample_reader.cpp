@@ -28,7 +28,7 @@ using namespace randomness::common;
 
 static constexpr size_t ChunkSize = 4096;
 
-size_t SampleReader::Open(const std::string& filepath)
+void SampleReader::Open(const std::string& filepath)
 {
     Close();
 
@@ -38,10 +38,8 @@ size_t SampleReader::Open(const std::string& filepath)
     }
 
     ifs.seekg(0, std::ios::end);
-    auto length = ifs.tellg();
+    length = static_cast<size_t>(ifs.tellg());
     ifs.seekg(0, std::ios::beg);
-
-    return static_cast<size_t>(length);
 }
 
 void SampleReader::Close()
@@ -49,6 +47,11 @@ void SampleReader::Close()
     if (ifs.is_open()) {
         ifs.close();
     }
+}
+
+size_t SampleReader::Length() const
+{
+    return length;
 }
 
 SharePtrSample SampleReader::NextBits(size_t length)
@@ -60,10 +63,15 @@ SharePtrSample SampleReader::NextBits(size_t length)
     char buffer[1] = {0};
     ifs.read(buffer, 1);
 
+    uint8_t mask = 0x80;
+    auto bits = static_cast<uint8_t>(buffer[0]);
     for (auto i = 0; i < lenBits; ++i) {
-        sample->AppendBit((buffer[0] & 0x80) >> 7);
-        buffer[0] <<= 1;
+        sample->AppendBit((bits & 0x80) >> 7);
+        bits <<= 1;
+        mask = 0x80 | (mask >> 1);
     }
+    
+    sample->AppendByte(static_cast<uint8_t>(buffer[0]) & mask);
 
     return sample;
 }
@@ -77,8 +85,7 @@ SharePtrSample SampleReader::NextBytes(size_t length)
 
     while (length > 0) {
         auto read = ReadChunk(buffer);
-        if (read > length)
-        {
+        if (read > length) {
             read = length;
         }
 
