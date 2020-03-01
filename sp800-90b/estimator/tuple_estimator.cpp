@@ -30,83 +30,83 @@ using namespace randomness::sp800_90b::estimator;
 
 std::string TupleEstimator::Name() const
 {
-	return "t-Tuple Estimator";
+    return "t-Tuple Estimator";
 }
 
 double TupleEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
-{	
-	auto lcp = LcpArray::Create(data, len);
+{    
+    auto lcp = LcpArray::Create(data, len);
 
-	// Let Q[i] store the number of occurrences of the most common i-tuple in S
-	auto Q = GetMaximumTupleCounts(lcp, len);
-	auto pmax = CalculateMaximumProbability(Q, len);
+    // Let Q[i] store the number of occurrences of the most common i-tuple in S
+    auto Q = GetMaximumTupleCounts(lcp, len);
+    auto pmax = CalculateMaximumProbability(Q, len);
 
-	if (verbose) {
-		logstream << "t=" << u - 1 << ", pmax=" << pmax;
-	}
+    if (verbose) {
+        logstream << "t=" << u - 1 << ", pmax=" << pmax;
+    }
 
-	return UpperBoundProbability(pmax, len);
+    return UpperBoundProbability(pmax, len);
 }
 
 double TupleEstimator::CalculateMaximumProbability(const std::vector<int64_t>& Q, size_t length) const
 {
-	auto pmax = -1.0;
-	for (size_t i = 1; i < u; ++i) {
-		auto p = Q[i] / static_cast<double>(length - i);
-		p = pow(p, 1.0 / i);
+    auto pmax = -1.0;
+    for (size_t i = 1; i < u; ++i) {
+        auto p = Q[i] / static_cast<double>(length - i);
+        p = pow(p, 1.0 / i);
 
-		if (pmax < p) {
-			pmax = p;
-		}
-	}
+        if (pmax < p) {
+            pmax = p;
+        }
+    }
 
-	return pmax;
+    return pmax;
 }
 
 std::vector<int64_t> TupleEstimator::GetMaximumTupleCounts(const LcpArray& lcp, size_t length)
 {
-	auto max_lcp = lcp.Max();
-	auto Q = std::vector<int64_t>(max_lcp + 1, 1);
-	auto A = std::vector<int64_t>(max_lcp + 2, 0);
-	auto I = std::vector<int64_t>(max_lcp + 3, 0);
+    auto max_lcp = lcp.Max();
+    auto Q = std::vector<int64_t>(max_lcp + 1, 1);
+    auto A = std::vector<int64_t>(max_lcp + 2, 0);
+    auto I = std::vector<int64_t>(max_lcp + 3, 0);
 
-	int64_t j = 0;
-	for (size_t i = 1; i <= length; ++i) {
-		size_t c = 0;
-		if (lcp[i] < lcp[i - 1]) {
-			auto t = lcp[i - 1];
-			--j;
+    int64_t j = 0;
+    for (size_t i = 1; i <= length; ++i) {
+        size_t c = 0;
+        if (lcp[i] < lcp[i - 1]) {
+            auto t = lcp[i - 1];
+            --j;
 
-			while (t > lcp[i]) {
-				if ((j > 0) && I[j] == t) {
-					A[I[j]] += A[I[j + 1]];
-					A[I[j + 1]] = 0;
-					--j;
-				}
+            while (t > lcp[i]) {
+                if ((j > 0) && I[j] == t) {
+                    A[I[j]] += A[I[j + 1]];
+                    A[I[j + 1]] = 0;
+                    --j;
+                }
 
-				if (Q[t] >= A[I[j + 1]] + 1) {
-					t = (j > 0) ? I[j] : lcp[i];
-				}
-				else {
-					Q[t--] = A[I[j + 1]] + 1;
-				}
-			}
+                if (Q[t] >= A[I[j + 1]] + 1) {
+                    t = (j > 0) ? I[j] : lcp[i];
+                }
+                else {
+                    Q[t--] = A[I[j + 1]] + 1;
+                }
+            }
 
-			c = A[I[j + 1]];
-			A[I[j + 1]] = 0;
-		}
+            c = A[I[j + 1]];
+            A[I[j + 1]] = 0;
+        }
 
-		if (lcp[i] > 0) {
-			if ((j < 1) || (I[j] < lcp[i])) {
-				I[++j] = lcp[i];
-			}
+        if (lcp[i] > 0) {
+            if ((j < 1) || (I[j] < lcp[i])) {
+                I[++j] = lcp[i];
+            }
 
-			A[I[j]] += c + 1;
-		}
-	}
+            A[I[j]] += c + 1;
+        }
+    }
 
-	u = 1;
-	while ((Q[u] >= 35) && ((u++) < max_lcp));
+    u = 1;
+    while ((Q[u] >= 35) && ((u++) < max_lcp));
 
-	return Q;
+    return Q;
 }

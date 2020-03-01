@@ -30,60 +30,60 @@ using namespace randomness::algorithm;
 
 LcpArray LcpArray::Create(const SuffixArray& sa)
 {
-	LcpArray lcp;
-	lcp.Build(sa);
-	return lcp;
+    LcpArray lcp;
+    lcp.Build(sa);
+    return lcp;
 }
 
 LcpArray LcpArray::Create(const uint8_t* data, size_t length)
 {
-	auto sa = SuffixArray::Create(data, length);
-	return Create(sa);
+    auto sa = SuffixArray::Create(data, length);
+    return Create(sa);
 }
 
 void LcpArray::Build(const SuffixArray& sa)
 {
-	auto data = sa.RawData();
-	auto length = sa.Length();
+    auto data = sa.RawData();
+    auto length = sa.Length();
 
-	lcp_array.clear();
-	lcp_array.assign(length, 0);
+    lcp_array.clear();
+    lcp_array.assign(length, 0);
 
-	auto rank = std::vector<int64_t>(length + 1, 0);
-	for (size_t i = 0; i < length; ++i) {
-		rank[sa[i]] = i + 1;
-	}
+    auto rank = std::vector<int64_t>(length + 1, 0);
+    for (size_t i = 0; i < length; ++i) {
+        rank[sa[i]] = i + 1;
+    }
 
-	size_t lcp = 0;
-	for (size_t i = 0; i < length; ++i) {
-		auto rk = rank[i];
-		if (rk > 1) {
-			auto j = sa[rk];
-			while (sa.EqualTo(i, j, lcp)) {
-				lcp += 1;
-			}
-			lcp_array[rk] = lcp;
-		}
+    size_t lcp = 0;
+    for (size_t i = 0; i < length; ++i) {
+        auto rk = rank[i];
+        if (rk > 1) {
+            auto j = sa[rk];
+            while (sa.EqualTo(i, j, lcp)) {
+                lcp += 1;
+            }
+            lcp_array[rk] = lcp;
+        }
 
-		if (lcp > 0) {
-			lcp -= 1;
-		}
-	}
+        if (lcp > 0) {
+            lcp -= 1;
+        }
+    }
 
-	max_lcp = static_cast<size_t>(*std::max_element(lcp_array.begin(), lcp_array.end()));
+    max_lcp = static_cast<size_t>(*std::max_element(lcp_array.begin(), lcp_array.end()));
 }
 
 size_t LcpArray::operator[](size_t pos) const
 {
-	return lcp_array[pos];
+    return lcp_array[pos];
 }
 
 const std::vector<size_t>& LcpArray::Array() const
 {
-	return lcp_array;
+    return lcp_array;
 }
 
 size_t LcpArray::Max() const
 {
-	return max_lcp;
+    return max_lcp;
 }

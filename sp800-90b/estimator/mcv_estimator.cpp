@@ -31,23 +31,23 @@ using namespace randomness::sp800_90b::estimator;
 
 std::string McvEstimator::Name() const
 {
-	return "Most Common Value Estimator";
+    return "Most Common Value Estimator";
 }
 
 double McvEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {
-	std::vector<size_t> counts(alph_size, 0);
+    std::vector<size_t> counts(alph_size, 0);
 
-	for (auto i = 0; i < len; ++i) {
-		counts[data[i]] += 1;
-	}
-
-    auto max = *std::max_element(counts.begin(), counts.end());
-	auto pmax = static_cast<double>(max) / len;
-
-    if (verbose) {
-	    logstream << "max=" << max << ", pmax=" << pmax;
+    for (auto i = 0; i < len; ++i) {
+        counts[data[i]] += 1;
     }
 
-	return UpperBoundProbability(pmax, len);
+    auto max = *std::max_element(counts.begin(), counts.end());
+    auto pmax = static_cast<double>(max) / len;
+
+    if (verbose) {
+        logstream << "max=" << max << ", pmax=" << pmax;
+    }
+
+    return UpperBoundProbability(pmax, len);
 }

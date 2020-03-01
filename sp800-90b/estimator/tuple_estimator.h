@@ -37,7 +37,7 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     class TupleEstimator : public EntropyEstimator 
     {
     protected:
-    	size_t u = 0;
+        size_t u = 0;
 
     public:
         double Estimate(const uint8_t* data, size_t length, size_t count_alphabets) override;
