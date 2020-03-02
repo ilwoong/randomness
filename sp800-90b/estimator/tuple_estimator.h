@@ -36,18 +36,16 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     class TupleEstimator : public EntropyEstimator 
     {
-    protected:
-        size_t u = 0;
-
     public:
-        double Estimate(const uint8_t* data, size_t length, size_t count_alphabets) override;
         std::string Name() const override;
+        double Estimate(const uint8_t* data, size_t length, size_t count_alphabets) override;
+        virtual double Estimate(const LcpArray& lcp);
 
     protected:
         std::vector<size_t> GetMaximumTupleCounts(const LcpArray& lcp, size_t length);
 
     private:
-        double CalculateMaximumProbability(const std::vector<size_t>& Q, size_t length) const;
+        double CalculateMaximumProbability(const std::vector<size_t>& Q, size_t t, size_t length) const;
     };
 }}}
 

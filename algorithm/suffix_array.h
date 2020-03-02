@@ -29,11 +29,22 @@
 #include <vector>
 
 namespace randomness { namespace algorithm {
+
+    struct suffix_t {
+        size_t index;
+        size_t length;
+        const uint8_t* suffix;
+
+        friend bool operator<(const suffix_t& lhs, const suffix_t& rhs);
+    };
+
+    bool operator<(const suffix_t& lhs, const suffix_t& rhs);
+
     class SuffixArray {
     private:
         const uint8_t* data;
         size_t length;
-        std::vector<size_t> suffix_array;
+        std::vector<suffix_t> suffix_array;
         
     public:
         static SuffixArray Create(const uint8_t* str, size_t length);
@@ -44,7 +55,7 @@ namespace randomness { namespace algorithm {
     public:
         size_t operator[](size_t pos) const;
         
-        const std::vector<size_t>& Array() const;
+        const std::vector<suffix_t>& Array() const;
         const uint8_t* RawData() const;
         size_t Length() const;
 

@@ -33,7 +33,7 @@ namespace randomness { namespace sp800_90b {
     class EntropyEstimator 
     {
     protected:
-        bool verbose = false;
+        bool verbose = true;
         std::ostringstream logstream;
 
     public:

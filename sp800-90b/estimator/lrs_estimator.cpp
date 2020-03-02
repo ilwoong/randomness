@@ -28,6 +28,13 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+static inline size_t FindSmallestU(const std::vector<size_t>& Q, size_t max_lcp)
+{
+    size_t u = 1;
+    while ((Q[u] < 35) && ((u++) < max_lcp));
+    return u;
+}
+
 std::string LrsEstimator::Name() const
 {
     return "LRS Estimator";
@@ -36,8 +43,18 @@ std::string LrsEstimator::Name() const
 double LrsEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {    
     auto lcp = LcpArray::Create(data, len);
-    auto S = GetLRS(lcp, len);
-    auto pmax = CalculateMaximumProbability(S, lcp.Max(), len);
+    return Estimate(lcp);
+}
+
+double LrsEstimator::Estimate(const LcpArray& lcp)
+{
+    auto len = lcp.Array().size();
+    auto Q = GetMaximumTupleCounts(lcp, len);
+    auto u = FindSmallestU(Q, lcp.Max());
+    auto v = lcp.Max();
+
+    auto C = GetLRS(lcp, u, len);
+    auto pmax = CalculateMaximumProbability(C, u, v, len);
 
     if (verbose) {
         logstream << "u=" << u << ", v=" << lcp.Max() << ", pmax=" << pmax;
@@ -46,11 +63,11 @@ double LrsEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
     return UpperBoundProbability(pmax, len);
 }
 
-double LrsEstimator::CalculateMaximumProbability(const std::vector<size_t>& S, size_t v, size_t length) const
+double LrsEstimator::CalculateMaximumProbability(const std::vector<size_t>& C, size_t u, size_t v, size_t length) const
 {
     auto pmax = 0.0;
     for (size_t i = u; i <= v; ++i) {
-        auto p = S[i] / static_cast<double>(((length - i) * (length - i + 1)) >> 1);
+        auto p = C[i] / static_cast<double>(((length - i) * (length - i + 1)) >> 1);
         p = pow(p, 1.0 / i);
 
         if (pmax < p) {
@@ -61,11 +78,10 @@ double LrsEstimator::CalculateMaximumProbability(const std::vector<size_t>& S, s
     return pmax;
 }
 
-std::vector<size_t> LrsEstimator::GetLRS(const LcpArray& lcp, size_t length)
+std::vector<size_t> LrsEstimator::GetLRS(const LcpArray& lcp, size_t u, size_t length)
 {    
     auto max_lcp = lcp.Max();
 
-    auto Q = GetMaximumTupleCounts(lcp, length);
     auto A = std::vector<size_t>(max_lcp + 2, 0);
     auto S = std::vector<size_t>(max_lcp + 1, 0);
 

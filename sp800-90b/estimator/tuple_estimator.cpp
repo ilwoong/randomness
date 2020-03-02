@@ -28,6 +28,13 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+static inline size_t FindLargestT(const std::vector<size_t> Q, size_t max_lcp)
+{
+    size_t t = 1;
+    while ((Q[t] >= 35) && ((t++) < max_lcp));
+    return t;
+}
+
 std::string TupleEstimator::Name() const
 {
     return "t-Tuple Estimator";
@@ -36,22 +43,27 @@ std::string TupleEstimator::Name() const
 double TupleEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {    
     auto lcp = LcpArray::Create(data, len);
+    return Estimate(lcp);
+}
 
-    // Let Q[i] store the number of occurrences of the most common i-tuple in S
-    auto Q = GetMaximumTupleCounts(lcp, len);
-    auto pmax = CalculateMaximumProbability(Q, len);
+double TupleEstimator::Estimate(const LcpArray& lcp)
+{    
+    auto len = lcp.Array().size();
+    auto Q = GetMaximumTupleCounts(lcp, len);    
+    auto t = FindLargestT(Q, lcp.Max());
+    auto pmax = CalculateMaximumProbability(Q, t, len);
 
     if (verbose) {
-        logstream << "t=" << u - 1 << ", pmax=" << pmax;
+        logstream << "t=" << t - 1 << ", pmax=" << pmax;
     }
 
     return UpperBoundProbability(pmax, len);
 }
 
-double TupleEstimator::CalculateMaximumProbability(const std::vector<size_t>& Q, size_t length) const
+double TupleEstimator::CalculateMaximumProbability(const std::vector<size_t>& Q, size_t t, size_t length) const
 {
     auto pmax = -1.0;
-    for (size_t i = 1; i < u; ++i) {
+    for (size_t i = 1; i < t; ++i) {
         auto p = Q[i] / static_cast<double>(length - i);
         p = pow(p, 1.0 / i);
 
@@ -104,9 +116,6 @@ std::vector<size_t> TupleEstimator::GetMaximumTupleCounts(const LcpArray& lcp, s
             A[I[j]] += c + 1;
         }
     }
-
-    u = 1;
-    while ((Q[u] >= 35) && ((u++) < max_lcp));
 
     return Q;
 }

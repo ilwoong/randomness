@@ -38,6 +38,7 @@
 
 using namespace randomness::sp800_90b;
 using namespace randomness::sp800_90b::estimator;
+using namespace randomness::algorithm;
 
 static constexpr size_t MILLION = 1000000;
 
@@ -115,11 +116,21 @@ void run_estimators(const char* filepath)
     auto estimators = get_estimators();
     double total_elapsed = omp_get_wtime();
 
-#pragma omp parallel for
+    auto lcp = LcpArray::Create(pdata, data_length);
+    std::cout << "Building LCP array is done!!" << std::endl;
+
     for (int i = 0; i < estimators.size(); ++i) {
-        auto estimator = estimators[i];
+        auto estimator = estimators[i].get();
         auto elapsed = omp_get_wtime();
-        double entropy = estimator->Estimate(pdata, data_length, alph_size);
+        double entropy = 0;
+
+        auto tuple_estimator = dynamic_cast<TupleEstimator*>(estimator);
+        if (tuple_estimator != nullptr) {
+            entropy = tuple_estimator->Estimate(lcp);
+        } else {
+            entropy = estimator->Estimate(pdata, data_length, alph_size);
+        }
+
         elapsed = omp_get_wtime() - elapsed;
 
         std::cout << std::setw(30) << std::fixed << std::right << estimator->Name() << ": ";

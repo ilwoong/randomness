@@ -39,10 +39,11 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     public:
         std::string Name() const override;
         double Estimate(const uint8_t* data, size_t length, size_t count_alphabets) override;
+        double Estimate(const LcpArray& lcp) override;
 
     private:
-        std::vector<size_t> GetLRS(const LcpArray& lcp, size_t length);
-        double CalculateMaximumProbability(const std::vector<size_t>& S, size_t v, size_t length) const;
+        std::vector<size_t> GetLRS(const LcpArray& lcp, size_t u, size_t length);
+        double CalculateMaximumProbability(const std::vector<size_t>& S, size_t u, size_t v, size_t length) const;
     };
 }}}
 

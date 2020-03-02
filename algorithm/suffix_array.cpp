@@ -29,11 +29,18 @@
 
 using namespace randomness::algorithm;
 
-struct suffix_t {
-    size_t index;
-    size_t length;
-    const uint8_t* suffix;
-};
+bool randomness::algorithm::operator<(const suffix_t& lhs, const suffix_t& rhs)
+{
+    const uint8_t* lptr = lhs.suffix;
+    const uint8_t* rptr = rhs.suffix;
+
+    int64_t cmp = memcmp(lptr, rptr, std::min(lhs.length, rhs.length));
+    if (cmp == 0) {
+        cmp = static_cast<int64_t>(lhs.length) - static_cast<int64_t>(rhs.length);
+    }
+
+    return cmp < 0;
+}
 
 static std::vector<suffix_t> BuildSuffixStructure(const uint8_t* str, size_t length) 
 {
@@ -48,19 +55,6 @@ static std::vector<suffix_t> BuildSuffixStructure(const uint8_t* str, size_t len
     return suffixes;
 }
 
-static bool lessthan(suffix_t lhs, suffix_t rhs)
-{
-    const uint8_t* lptr = lhs.suffix;
-    const uint8_t* rptr = rhs.suffix;
-
-    auto cmp = memcmp(lptr, rptr, std::min(lhs.length, rhs.length));
-    if (cmp == 0) {
-        cmp = static_cast<int64_t>(lhs.length) - static_cast<int64_t>(rhs.length);
-    }
-
-    return cmp < 0;
-}
-
 SuffixArray SuffixArray::Create(const uint8_t* str, size_t length)
 {
     SuffixArray sa;
@@ -73,23 +67,16 @@ void SuffixArray::Build(const uint8_t* str, size_t length)
     data = str;
     this->length = length;
 
-    auto suffixes = BuildSuffixStructure(str, length);
-    std::sort(suffixes.begin(), suffixes.end(), lessthan);
-
-    suffix_array.clear();
-    suffix_array.assign(length, 0);
-
-    for (size_t i = 0; i < length; ++i) {
-        suffix_array[i] = suffixes[i].index;
-    }
+    suffix_array = BuildSuffixStructure(str, length);
+    std::sort(suffix_array.begin(), suffix_array.end());
 }
 
 size_t SuffixArray::operator[](size_t pos) const
 {
-    return suffix_array[pos];
+    return suffix_array[pos].index;
 }
 
-const std::vector<size_t>& SuffixArray::Array() const
+const std::vector<suffix_t>& SuffixArray::Array() const
 {
     return suffix_array;
 }

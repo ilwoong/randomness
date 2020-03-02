@@ -43,31 +43,32 @@ LcpArray LcpArray::Create(const uint8_t* data, size_t length)
 
 void LcpArray::Build(const SuffixArray& sa)
 {
-    auto data = sa.RawData();
     auto length = sa.Length();
 
     lcp_array.clear();
     lcp_array.assign(length, 0);
 
-    auto rank = std::vector<int64_t>(length + 1, 0);
+    auto rank = std::vector<size_t>(length, 0);
     for (size_t i = 0; i < length; ++i) {
-        rank[sa[i]] = i + 1;
+        rank[sa[i]] = i;
     }
 
     size_t lcp = 0;
     for (size_t i = 0; i < length; ++i) {
-        auto rk = rank[i];
-        if (rk > 1) {
-            auto j = sa[rk];
-            while (sa.EqualTo(i, j, lcp)) {
-                lcp += 1;
-            }
-            lcp_array[rk] = lcp;
-        }
-
         if (lcp > 0) {
             lcp -= 1;
         }
+
+        if (rank[i] == 0) {
+            continue;
+        }
+
+        auto j = sa[rank[i] - 1];
+        while (sa.EqualTo(i, j, lcp)) {
+            lcp += 1;
+        }
+
+        lcp_array[rank[i]] = lcp;
     }
 
     max_lcp = static_cast<size_t>(*std::max_element(lcp_array.begin(), lcp_array.end()));
