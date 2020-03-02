@@ -22,8 +22,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef _RANDOMNESS_COMMON_SAMPLE_H__
-#define _RANDOMNESS_COMMON_SAMPLE_H__
+#ifndef __RANDOMNESS_COMMON_SAMPLE_H__
+#define __RANDOMNESS_COMMON_SAMPLE_H__
 
 #include <cstdint>
 #include <vector>

@@ -22,8 +22,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef _RANDOMNESS_SP800_22_MONOBIT_TEST_H__
-#define _RANDOMNESS_SP800_22_MONOBIT_TEST_H__
+#ifndef __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
+#define __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
 
 #include "statistical_test.h"
 
