@@ -22,11 +22,7 @@
  * THE SOFTWARE.
  */
 
-#include "../sp800-90b/estimator/mcv_estimator.h"
-#include "../sp800-90b/estimator/collision_estimator.h"
-#include "../sp800-90b/estimator/markov_estimator.h"
-#include "../sp800-90b/estimator/tuple_estimator.h"
-#include "../sp800-90b/estimator/lrs_estimator.h"
+#include "../sp800-90b/estimators.h"
 
 #include <array>
 #include <algorithm>
