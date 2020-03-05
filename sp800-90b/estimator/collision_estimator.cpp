@@ -37,8 +37,8 @@ std::string CollisionEstimator::Name() const
 double CollisionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {
     if (alph_size != 2) {
-		throw std::invalid_argument("only applicable to binary data");
-	}
+        throw std::invalid_argument("only applicable to binary data");
+    }
 
     auto lower_bound_mean = FromBinaryCollisions(data, len);
 

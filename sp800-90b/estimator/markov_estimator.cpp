@@ -62,11 +62,11 @@ static std::vector<double> GenerateProbabilities(const uint8_t* data, size_t len
 
     std::vector<double> probs;
     probs.push_back(p0 * pow(table[0], 127));
-	probs.push_back(p0 * pow(table[1], 64) * pow(table[2], 63));
-	probs.push_back(p0 * table[1] * pow(table[3], 126));
-	probs.push_back(p1 * table[2] * pow(table[0], 126));
-	probs.push_back(p1 * pow(table[2], 64) * pow(table[1], 63));
-	probs.push_back(p1 * pow(table[3], 127));
+    probs.push_back(p0 * pow(table[1], 64) * pow(table[2], 63));
+    probs.push_back(p0 * table[1] * pow(table[3], 126));
+    probs.push_back(p1 * table[2] * pow(table[0], 126));
+    probs.push_back(p1 * pow(table[2], 64) * pow(table[1], 63));
+    probs.push_back(p1 * pow(table[3], 127));
 
     return probs;
 }
@@ -79,8 +79,8 @@ std::string MarkovEstimator::Name() const
 double MarkovEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {
     if (alph_size != 2) {
-		throw std::invalid_argument("only applicable to binary data");
-	}
+        throw std::invalid_argument("only applicable to binary data");
+    }
 
     auto probs = GenerateProbabilities(data, len);
     auto pmax = *std::max_element(probs.begin(), probs.end());
