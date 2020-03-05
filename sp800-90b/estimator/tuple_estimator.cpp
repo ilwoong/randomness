@@ -37,7 +37,7 @@ static inline size_t FindLargestT(const std::vector<size_t> Q, size_t max_lcp)
 
 std::string TupleEstimator::Name() const
 {
-    return "t-Tuple Estimator";
+    return "t-Tuple Estimate";
 }
 
 double TupleEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
@@ -53,9 +53,7 @@ double TupleEstimator::Estimate(const LcpArray& lcp)
     auto t = FindLargestT(Q, lcp.Max());
     auto pmax = CalculateMaximumProbability(Q, t, len);
 
-    if (verbose) {
-        logstream << "t=" << t - 1 << ", pmax=" << pmax;
-    }
+    logstream << "t=" << t - 1 << ", pmax=" << pmax;
 
     return UpperBoundProbability(pmax, len);
 }
@@ -75,6 +73,10 @@ double TupleEstimator::CalculateMaximumProbability(const std::vector<size_t>& Q,
     return pmax;
 }
 
+/**
+ * Based on the code below:
+ * https://github.com/usnistgov/SP800-90B_EntropyAssessment/blob/master/cpp/shared/lrs_test.h
+ */
 std::vector<size_t> TupleEstimator::GetMaximumTupleCounts(const LcpArray& lcp, size_t length)
 {
     auto max_lcp = lcp.Max();

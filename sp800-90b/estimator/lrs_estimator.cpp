@@ -37,7 +37,7 @@ static inline size_t FindSmallestU(const std::vector<size_t>& Q, size_t max_lcp)
 
 std::string LrsEstimator::Name() const
 {
-    return "LRS Estimator";
+    return "LRS Estimate";
 }
 
 double LrsEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
@@ -56,9 +56,7 @@ double LrsEstimator::Estimate(const LcpArray& lcp)
     auto C = GetLRS(lcp, u, len);
     auto pmax = CalculateMaximumProbability(C, u, v, len);
 
-    if (verbose) {
-        logstream << "u=" << u << ", v=" << lcp.Max() << ", pmax=" << pmax;
-    }
+    logstream << "u=" << u << ", v=" << lcp.Max() << ", pmax=" << pmax;
 
     return UpperBoundProbability(pmax, len);
 }
@@ -78,6 +76,10 @@ double LrsEstimator::CalculateMaximumProbability(const std::vector<size_t>& C, s
     return pmax;
 }
 
+/**
+ * Based on the code below:
+ * https://github.com/usnistgov/SP800-90B_EntropyAssessment/blob/master/cpp/shared/lrs_test.h
+ */
 std::vector<size_t> LrsEstimator::GetLRS(const LcpArray& lcp, size_t u, size_t length)
 {    
     auto max_lcp = lcp.Max();

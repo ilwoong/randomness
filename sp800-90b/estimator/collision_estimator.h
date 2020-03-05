@@ -25,15 +25,20 @@
 #ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_COLLISION_H__
 #define _RANDOMNESS_SP800_90B_ESTIMATOR_COLLISION_H__
 
-#include "../entropy_estimator.h"
+#include "entropy_estimator.h"
 
 namespace randomness { namespace sp800_90b { namespace estimator{
 
     class CollisionEstimator : public EntropyEstimator 
     {
     public:
+        std::string Name() const override;
+        
         double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
-        std::string Name() const;
+
+    private:
+        double EvaluateBinarySearch(double arg1, double arg2) const override;
+        double FromBinaryCollisions(const uint8_t* data, size_t len);
     };
 }}}
 

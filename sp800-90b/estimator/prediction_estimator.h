@@ -22,22 +22,30 @@
  * THE SOFTWARE.
  */
 
+#ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
+#define _RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
+
 #include "entropy_estimator.h"
 
-#include <algorithm>
-#include <cmath>
+namespace randomness { namespace sp800_90b { namespace estimator{
 
-using namespace randomness::sp800_90b;
+    class PredictionEstimator : public EntropyEstimator 
+    {
+    protected:
+        size_t countCorrects;
+        size_t countPredictions;
+        size_t maxCorrectRuns;
 
-static constexpr double ZALPHA = 2.5758293035489008;
+    public:
+        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
+        double EstimateByPrediction(size_t k);
 
-double EntropyEstimator::UpperBoundProbability(double prob, size_t length) const
-{
-    auto upper_bound = std::min(1.0, prob + ZALPHA * sqrt(prob * (1.0 - prob) / (length - 1.0)));
-    return -log2(upper_bound);
-}
+    protected:
+        virtual void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) = 0;
 
-std::string EntropyEstimator::Log() const
-{
-    return logstream.str();
-}
+    private:
+        double EvaluateBinarySearch(double arg1, double arg2) const override;
+    };
+}}}
+
+#endif

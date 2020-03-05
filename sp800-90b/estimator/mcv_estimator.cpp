@@ -31,7 +31,7 @@ using namespace randomness::sp800_90b::estimator;
 
 std::string McvEstimator::Name() const
 {
-    return "Most Common Value Estimator";
+    return "Most Common Value Estimate";
 }
 
 double McvEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
@@ -45,9 +45,7 @@ double McvEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
     auto max = *std::max_element(counts.begin(), counts.end());
     auto pmax = static_cast<double>(max) / len;
 
-    if (verbose) {
-        logstream << "max=" << max << ", pmax=" << pmax;
-    }
+    logstream << "max=" << max << ", pmax=" << pmax;
 
     return UpperBoundProbability(pmax, len);
 }

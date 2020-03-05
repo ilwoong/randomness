@@ -23,6 +23,8 @@
  */
 
 #include "../sp800-90b/estimator/mcv_estimator.h"
+#include "../sp800-90b/estimator/collision_estimator.h"
+#include "../sp800-90b/estimator/markov_estimator.h"
 #include "../sp800-90b/estimator/tuple_estimator.h"
 #include "../sp800-90b/estimator/lrs_estimator.h"
 
@@ -79,6 +81,8 @@ std::vector<std::shared_ptr<EntropyEstimator>> get_estimators()
 {
     std::vector<std::shared_ptr<EntropyEstimator>> estimators;
     estimators.push_back(std::make_shared<McvEstimator>());
+    estimators.push_back(std::make_shared<CollisionEstimator>());
+    estimators.push_back(std::make_shared<MarkovEstimator>());
     estimators.push_back(std::make_shared<TupleEstimator>());
     estimators.push_back(std::make_shared<LrsEstimator>());
 

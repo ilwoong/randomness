@@ -22,20 +22,44 @@
  * THE SOFTWARE.
  */
 
-#ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_MCV_H__
-#define _RANDOMNESS_SP800_90B_ESTIMATOR_MCV_H__
+#include "prediction_estimator.h"
 
-#include "entropy_estimator.h"
+#include <algorithm>
+#include <cmath>
 
-namespace randomness { namespace sp800_90b { namespace estimator{
+using namespace randomness::sp800_90b::estimator;
 
-    class McvEstimator : public EntropyEstimator 
-    {
-    public:
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
-        std::string Name() const;
-    };
-}}}
+static const double LogAlpha = log(0.99);
 
+double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
+{
+    CountCorrectPredictions(data, len, alph_size);
+    return EstimateByPrediction(len);
+}
 
-#endif
+double PredictionEstimator::EstimateByPrediction(size_t k)
+{
+    auto max = 1.0 / k;
+    auto p_global = static_cast<double>(countCorrects) / static_cast<double>(countPredictions);
+    auto p_global_prime = UpperBoundProbability(p_global, countPredictions);
+
+    max = std::max(max, p_global_prime);
+    if (max < 1.0) {
+        auto p_local = BinarySearch(maxCorrectRuns + 1, 0.5, 1.0);
+        max = std::max(max, p_local);
+    }
+
+    return -log2(max);
+}
+
+double PredictionEstimator::EvaluateBinarySearch(double p, double r) const
+{
+    auto q = 1.0 - p;
+    auto x = 1.0;
+
+    for (auto i = 0; i < 10; ++i) {
+        x = 1.0 + q * powl(p, r) * powl(x, r + 1.0);
+    }
+
+    return logl(1.0 - p * x) - logl((r + 1 - r * x) * q) - (countPredictions + 1.0) * logl(x);
+}

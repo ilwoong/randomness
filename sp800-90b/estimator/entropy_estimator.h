@@ -29,11 +29,13 @@
 #include <string>
 #include <sstream>
 
-namespace randomness { namespace sp800_90b {
+namespace randomness { namespace sp800_90b { namespace estimator {
+
+    static constexpr double Zalpha = 2.5758293035489008;
+
     class EntropyEstimator 
     {
     protected:
-        bool verbose = true;
         std::ostringstream logstream;
 
     public:
@@ -44,7 +46,9 @@ namespace randomness { namespace sp800_90b {
 
     protected:
         double UpperBoundProbability(double prob, size_t length) const;
+        double BinarySearch(double arg, double ldomain, double hdomain, double optional = 0.0);
+        virtual double EvaluateBinarySearch(double arg1, double arg2) const;
     };
-}}
+}}}
 
 #endif

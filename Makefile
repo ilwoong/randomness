@@ -9,11 +9,13 @@ SRC_SP800_22 = \
 SRC_SP800_90B = \
 	algorithm/lcp_array.cpp \
 	algorithm/suffix_array.cpp \
-	sp800-90b/entropy_estimator.cpp \
-	sp800-90b/estimator/collision_estimator.cpp \
 	sp800-90b/estimator/mcv_estimator.cpp \
+	sp800-90b/estimator/entropy_estimator.cpp \
+	sp800-90b/estimator/collision_estimator.cpp \
+	sp800-90b/estimator/markov_estimator.cpp \
 	sp800-90b/estimator/tuple_estimator.cpp \
 	sp800-90b/estimator/lrs_estimator.cpp \
+	sp800-90b/estimator/prediction_estimator.cpp \
 
 .PHONY: all clean
 
