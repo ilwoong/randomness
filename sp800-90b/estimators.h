@@ -28,6 +28,7 @@
 #include "estimator/mcv_estimator.h"
 #include "estimator/collision_estimator.h"
 #include "estimator/markov_estimator.h"
+#include "estimator/compression_estimator.h"
 #include "estimator/tuple_estimator.h"
 #include "estimator/lrs_estimator.h"
 

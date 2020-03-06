@@ -39,9 +39,8 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         std::ostringstream logstream;
 
     public:
-        virtual double Estimate(const uint8_t* data, size_t len, size_t count_alphabets) = 0;
-
         virtual std::string Name() const = 0;
+        virtual double Estimate(const uint8_t* data, size_t len, size_t count_alphabets) = 0;
         std::string Log() const;
 
     protected:

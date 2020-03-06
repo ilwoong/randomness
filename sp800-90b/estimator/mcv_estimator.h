@@ -32,8 +32,8 @@ namespace randomness { namespace sp800_90b { namespace estimator{
     class McvEstimator : public EntropyEstimator 
     {
     public:
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
         std::string Name() const;
+        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
     };
 }}}
 

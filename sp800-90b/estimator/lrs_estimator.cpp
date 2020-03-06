@@ -28,13 +28,6 @@
 
 using namespace randomness::sp800_90b::estimator;
 
-static inline size_t FindSmallestU(const std::vector<size_t>& Q, size_t max_lcp)
-{
-    size_t u = 1;
-    while ((Q[u] < 35) && ((u++) < max_lcp));
-    return u;
-}
-
 std::string LrsEstimator::Name() const
 {
     return "LRS Estimate";
@@ -44,6 +37,13 @@ double LrsEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {    
     auto lcp = LcpArray::Create(data, len);
     return Estimate(lcp);
+}
+
+static inline size_t FindSmallestU(const std::vector<size_t>& Q, size_t max_lcp)
+{
+    size_t u = 1;
+    while ((Q[u] < 35) && ((u++) < max_lcp));
+    return u;
 }
 
 double LrsEstimator::Estimate(const LcpArray& lcp)

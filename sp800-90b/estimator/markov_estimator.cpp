@@ -31,6 +31,11 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+std::string MarkovEstimator::Name() const
+{
+    return "Markov Estimate";
+}
+
 static std::array<size_t, 5> CountPatterns(const uint8_t* data, size_t len)
 {
     std::array<size_t, 5> counts = {0, 0, 0, 0, 0};
@@ -69,11 +74,6 @@ static std::vector<double> GenerateProbabilities(const uint8_t* data, size_t len
     probs.push_back(p1 * pow(table[3], 127));
 
     return probs;
-}
-
-std::string MarkovEstimator::Name() const
-{
-    return "Markov Estimate";
 }
 
 double MarkovEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)

@@ -79,6 +79,7 @@ std::vector<std::shared_ptr<EntropyEstimator>> get_estimators()
     estimators.push_back(std::make_shared<McvEstimator>());
     estimators.push_back(std::make_shared<CollisionEstimator>());
     estimators.push_back(std::make_shared<MarkovEstimator>());
+    estimators.push_back(std::make_shared<CompressionEstimator>());
     estimators.push_back(std::make_shared<TupleEstimator>());
     estimators.push_back(std::make_shared<LrsEstimator>());
 

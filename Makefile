@@ -13,6 +13,7 @@ SRC_SP800_90B = \
 	sp800-90b/estimator/entropy_estimator.cpp \
 	sp800-90b/estimator/collision_estimator.cpp \
 	sp800-90b/estimator/markov_estimator.cpp \
+	sp800-90b/estimator/compression_estimator.cpp \
 	sp800-90b/estimator/tuple_estimator.cpp \
 	sp800-90b/estimator/lrs_estimator.cpp \
 	sp800-90b/estimator/prediction_estimator.cpp \

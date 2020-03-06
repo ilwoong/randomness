@@ -22,22 +22,29 @@
  * THE SOFTWARE.
  */
 
-#ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_COLLISION_H__
-#define _RANDOMNESS_SP800_90B_ESTIMATOR_COLLISION_H__
+#ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_COMPRESSION_H__
+#define _RANDOMNESS_SP800_90B_ESTIMATOR_COMPRESSION_H__
 
 #include "entropy_estimator.h"
 
 namespace randomness { namespace sp800_90b { namespace estimator{
 
-    class CollisionEstimator : public EntropyEstimator 
+    class CompressionEstimator : public EntropyEstimator 
     {
+    private:
+        size_t blockLength = 6;
+        size_t countBlocks;
+        size_t countInitBlocks = 1000;
+        size_t countTestBlocks;
+
     public:
         std::string Name() const override;
         double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
 
     private:
         double EvaluateBinarySearch(double arg1, double arg2) const override;
-        double FromBinaryCollisions(const uint8_t* data, size_t len);
+        double G(double z) const;
+        double Calculate(const uint8_t* data, size_t len);
     };
 }}}
 

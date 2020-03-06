@@ -83,7 +83,7 @@ double CollisionEstimator::FromBinaryCollisions(const uint8_t* data, size_t len)
     auto std_dev = sqrt((squared_sum - index * mean) / (count_collisions - 1));
     auto lower_bound_mean = mean - Zalpha * sqrt(std_dev / count_collisions);
 
-    logstream << "μ=" << mean << ", σ=" << std_dev << ", X̄'=" << lower_bound_mean;
+    logstream << "X̄=" << mean << ", σ^=" << std_dev << ", X̄'=" << lower_bound_mean;
 
     return lower_bound_mean;
 }

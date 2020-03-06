@@ -28,16 +28,16 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+std::string TupleEstimator::Name() const
+{
+    return "t-Tuple Estimate";
+}
+
 static inline size_t FindLargestT(const std::vector<size_t> Q, size_t max_lcp)
 {
     size_t t = 1;
     while ((Q[t] >= 35) && ((t++) < max_lcp));
     return t;
-}
-
-std::string TupleEstimator::Name() const
-{
-    return "t-Tuple Estimate";
 }
 
 double TupleEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
