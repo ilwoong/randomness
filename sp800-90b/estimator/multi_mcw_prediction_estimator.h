@@ -52,12 +52,11 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         private:
             void UpdateMcv();
         };
-        
+
     private:
         std::vector<MostCommonInWindow> mcw;
 
     public:
-        MultiMcwPredictionEstimator();
         std::string Name() const override;
 
     private:

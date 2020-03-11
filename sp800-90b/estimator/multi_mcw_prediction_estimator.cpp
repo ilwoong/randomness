@@ -69,10 +69,6 @@ std::string MultiMcwPredictionEstimator::Name() const
     return "MultiMCW Prediction Estimate";
 }
 
-MultiMcwPredictionEstimator::MultiMcwPredictionEstimator()
-{
-}
-
 void MultiMcwPredictionEstimator::Initialize()
 {
     countPredictions = countSamples - WindowSize[0];
