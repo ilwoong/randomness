@@ -27,11 +27,14 @@
 
 #include "entropy_estimator.h"
 
+#include <vector>
+
 namespace randomness { namespace sp800_90b { namespace estimator {
 
     class PredictionEstimator : public EntropyEstimator 
     {
     protected:
+        size_t countSamples = 0;
         size_t countAlphabets = 0;
         size_t countPredictions = 0;
         size_t winner = 0;
@@ -39,14 +42,22 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         size_t countCorrects = 0;
         size_t maxCorrectRuns = 0;
 
+        const uint8_t* sample;
+        std::vector<int16_t> frequent;
+        std::vector<size_t> scoreboard;
+
     public:
         double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
         double EstimateByPrediction();
 
     protected:
-        virtual void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) = 0;
+        virtual void Initialize() = 0;
+        virtual void UpdatePrediction(uint8_t feed) = 0;
+        void CountCorrects(uint8_t feed);
+        void UpdateScoreBoard(uint8_t feed);
 
     private:
+        void CountCorrectPredictions();
         double EvaluateBinarySearch(double arg1, double arg2) const override;
     };
 }}}

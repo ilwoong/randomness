@@ -85,6 +85,7 @@ std::vector<std::shared_ptr<EntropyEstimator>> get_estimators(bool forBinary)
     estimators.push_back(std::make_shared<TupleEstimator>());
     estimators.push_back(std::make_shared<LrsEstimator>());
     estimators.push_back(std::make_shared<MultiMcwPredictionEstimator>());
+    estimators.push_back(std::make_shared<LagPredictionEstimator>());
 
     return estimators;
 }

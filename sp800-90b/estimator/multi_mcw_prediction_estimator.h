@@ -54,18 +54,14 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     {
     private:
         std::vector<MostCommonInWindow> mcw;
-        std::array<int16_t, 4> frequent;
-        std::array<size_t, 4> scoreboard;
 
     public:
         MultiMcwPredictionEstimator();
         std::string Name() const override;
 
     private:
-        void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) override;
-        void Initialize(size_t length);
-        void UpdatePrediction(uint8_t value);
-        void UpdateScoreBoard(uint8_t value);
+        void Initialize() override;
+        void UpdatePrediction(uint8_t feed) override;
     };
 }}}
 

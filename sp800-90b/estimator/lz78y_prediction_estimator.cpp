@@ -31,6 +31,10 @@ std::string Lz78yPredictionEstimator::Name() const
     return "LZ78Y Prediction Estimate";
 }
 
-void Lz78yPredictionEstimator::CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size)
+void Lz78yPredictionEstimator::Initialize()
 {
+}
+
+void Lz78yPredictionEstimator::UpdatePrediction(uint8_t feed)
+{    
 }

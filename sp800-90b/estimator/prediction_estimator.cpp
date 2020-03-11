@@ -33,8 +33,10 @@ static const double LogAlpha = log(0.99);
 
 double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
 {
+    sample = data;
+    countSamples = len;
     countAlphabets = alph_size;
-    CountCorrectPredictions(data, len, alph_size);
+    CountCorrectPredictions();
     return EstimateByPrediction();
 }
 
@@ -72,4 +74,47 @@ double PredictionEstimator::EvaluateBinarySearch(double p, double r) const
     }
 
     return logl(1.0 - p * x) - logl((r + 1 - r * x) * q) - (countPredictions + 1.0) * logl(x);
+}
+
+void PredictionEstimator::CountCorrectPredictions()
+{
+    Initialize();
+
+    for (size_t i = 1; i < countSamples; ++i) {
+        UpdatePrediction(sample[i]);
+        UpdateScoreBoard(sample[i]);
+    }
+
+    if (maxCorrectRuns < correctRuns) {
+        maxCorrectRuns = correctRuns;
+    }
+
+    logstream << "countCorrects=" << countCorrects << ", max_run=" << maxCorrectRuns;
+}
+
+void PredictionEstimator::CountCorrects(uint8_t feed)
+{
+    if (frequent[winner] == feed) {
+        correctRuns += 1;
+        countCorrects += 1;
+
+    } else {
+        if (maxCorrectRuns < correctRuns) {
+            maxCorrectRuns = correctRuns;
+        }
+        correctRuns = 0;
+    }
+}
+
+void PredictionEstimator::UpdateScoreBoard(uint8_t feed) 
+{
+    for (auto i = 0; i < 4; ++i) {
+        if (frequent[i] == feed) {
+            scoreboard[i] += 1;
+
+            if (scoreboard[i] >= scoreboard[winner]) {
+                winner = i;
+            }
+        }
+    }
 }

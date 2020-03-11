@@ -27,6 +27,8 @@
 
 #include "prediction_estimator.h"
 
+#include <vector>
+
 namespace randomness { namespace sp800_90b { namespace estimator {
 
     class LagPredictionEstimator : public PredictionEstimator 
@@ -35,7 +37,8 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         std::string Name() const override;
     
     private:
-        void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) override;
+        void Initialize() override;
+        void UpdatePrediction(uint8_t feed) override;
     };
 }}}
 

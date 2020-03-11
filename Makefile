@@ -18,6 +18,7 @@ SRC_SP800_90B = \
 	sp800-90b/estimator/lrs_estimator.cpp \
 	sp800-90b/estimator/prediction_estimator.cpp \
 	sp800-90b/estimator/multi_mcw_prediction_estimator.cpp \
+	sp800-90b/estimator/lag_prediction_estimator.cpp \
 
 .PHONY: all clean
 

@@ -31,6 +31,10 @@ std::string MultiMmcPredictionEstimator::Name() const
     return "MultiMMC Prediction Estimate";
 }
 
-void MultiMmcPredictionEstimator::CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size)
+void MultiMmcPredictionEstimator::Initialize()
 {
+}
+
+void MultiMmcPredictionEstimator::UpdatePrediction(uint8_t feed)
+{    
 }

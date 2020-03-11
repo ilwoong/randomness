@@ -24,6 +24,8 @@
 
 #include "lag_prediction_estimator.h"
 
+#include <vector>
+
 using namespace randomness::sp800_90b::estimator;
 
 std::string LagPredictionEstimator::Name() const
@@ -31,6 +33,24 @@ std::string LagPredictionEstimator::Name() const
     return "Lag Prediction Estimate";
 }
 
-void LagPredictionEstimator::CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size)
+void LagPredictionEstimator::Initialize()
 {
+    countPredictions = countSamples - 1;
+    
+    winner = 0;
+    correctRuns = 0;
+    maxCorrectRuns = 0;
+
+    frequent.assign(128, -1);
+    scoreboard.assign(128, 0);
+
+    frequent[127] = sample[0];
+}
+
+void LagPredictionEstimator::UpdatePrediction(uint8_t feed)
+{
+    CountCorrects(feed);
+
+    frequent.push_back(feed);
+    frequent.erase(frequent.begin());
 }

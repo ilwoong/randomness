@@ -73,74 +73,35 @@ MultiMcwPredictionEstimator::MultiMcwPredictionEstimator()
 {
 }
 
-void MultiMcwPredictionEstimator::CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size)
+void MultiMcwPredictionEstimator::Initialize()
 {
-    Initialize(len);
-
-    for (auto i = 0; i < WindowSize[0]; ++i) {
-        for (auto& window : mcw) {
-            window.Add(data[i]);
-        }
-    }
-
-    for (size_t i = WindowSize[0]; i < len; ++i) {
-        UpdatePrediction(data[i]);
-        UpdateScoreBoard(data[i]);
-    }
-
-    if (maxCorrectRuns < correctRuns) {
-        maxCorrectRuns = correctRuns;
-    }
-
-    logstream << "countCorrects=" << countCorrects << ", max_run=" << maxCorrectRuns;
-}
-
-void MultiMcwPredictionEstimator::Initialize(size_t length)
-{
-    countPredictions = length - WindowSize[0];
+    countPredictions = countSamples - WindowSize[0];
 
     winner = 0;
     correctRuns = 0;
     maxCorrectRuns = 0;
     
-    frequent.fill(-1);
-    scoreboard.fill(0);
+    frequent.assign(4, -1);
+    scoreboard.assign(4, 0);
 
     mcw.clear();
     for (auto i = 0; i < 4; ++i) {
         mcw.push_back(MostCommonInWindow(countAlphabets, WindowSize[i]));
     }
-}
 
-void MultiMcwPredictionEstimator::UpdatePrediction(uint8_t value)
-{
-    for (auto j = 0; j < 4; ++j) {
-            frequent[j] = mcw[j].Frequent();
-            mcw[j].Add(value);
-        }
-
-        if (frequent[winner] == value) {
-            correctRuns += 1;
-            countCorrects += 1;
-
-        } else {
-            if (maxCorrectRuns < correctRuns) {
-                maxCorrectRuns = correctRuns;
-            }
-            correctRuns = 0;
-        }
-}
-
-
-void MultiMcwPredictionEstimator::UpdateScoreBoard(uint8_t value)
-{
-    for (auto j = 0; j < 4; ++j) {
-        if (frequent[j] == value) {
-            scoreboard[j] += 1;
-
-            if (scoreboard[j] >= scoreboard[winner]) {
-                winner = j;
-            }
+    for (auto i = 0; i < WindowSize[0]; ++i) {
+        for (auto& window : mcw) {
+            window.Add(sample[i]);
         }
     }
+}
+
+void MultiMcwPredictionEstimator::UpdatePrediction(uint8_t feed)
+{
+    for (auto j = 0; j < 4; ++j) {
+        frequent[j] = mcw[j].Frequent();
+        mcw[j].Add(feed);
+    }
+
+    CountCorrects(feed);
 }
