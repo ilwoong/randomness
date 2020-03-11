@@ -31,12 +31,12 @@ using namespace randomness::sp800_90b::estimator;
 
 static constexpr std::array<size_t, 4> WindowSize = {63, 255, 1023, 4095};
 
-MostCommonInWindow::MostCommonInWindow(size_t countAlphabets, size_t windowSize) :  mcv(-1), windowSize(windowSize)
+MultiMcwPredictionEstimator::MostCommonInWindow::MostCommonInWindow(size_t countAlphabets, size_t windowSize) :  mcv(-1), windowSize(windowSize)
 {
     count = std::vector<size_t>(countAlphabets, 0);
 }
 
-void MostCommonInWindow::Add(uint8_t value)
+void MultiMcwPredictionEstimator::MostCommonInWindow::Add(uint8_t value)
 {
     count[value] += 1;
     window.push_back(value);
@@ -49,12 +49,12 @@ void MostCommonInWindow::Add(uint8_t value)
     }
 }
 
-int16_t MostCommonInWindow::Frequent() const
+int16_t MultiMcwPredictionEstimator::MostCommonInWindow::Frequent() const
 {
     return mcv;
 }
 
-void MostCommonInWindow::UpdateMcv()
+void MultiMcwPredictionEstimator::MostCommonInWindow::UpdateMcv()
 {
     auto max = *std::max_element(count.begin(), count.end());
     auto iter = window.rbegin();

@@ -32,26 +32,27 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MostCommonInWindow {
-    private:
-        int16_t mcv;
-        size_t windowSize;
-        std::vector<uint8_t> window;
-        std::vector<size_t> count;
-
-    public:
-        MostCommonInWindow() = default;
-        MostCommonInWindow(size_t countAlphabets, size_t windowSize);
-
-        void Add(uint8_t value);
-        int16_t Frequent() const;
-
-    private:
-        void UpdateMcv();
-    };
-
     class MultiMcwPredictionEstimator : public PredictionEstimator 
     {
+    public:
+        class MostCommonInWindow {
+        private:
+            int16_t mcv;
+            size_t windowSize;
+            std::vector<uint8_t> window;
+            std::vector<size_t> count;
+
+        public:
+            MostCommonInWindow() = default;
+            MostCommonInWindow(size_t countAlphabets, size_t windowSize);
+
+            void Add(uint8_t value);
+            int16_t Frequent() const;
+
+        private:
+            void UpdateMcv();
+        };
+        
     private:
         std::vector<MostCommonInWindow> mcw;
 
