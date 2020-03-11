@@ -22,8 +22,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_LRS_H__
-#define _RANDOMNESS_SP800_90B_ESTIMATOR_LRS_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_LRS_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_LRS_H__
 
 #include "tuple_estimator.h"
 #include "../../algorithm/lcp_array.h"

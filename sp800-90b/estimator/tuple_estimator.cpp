@@ -55,7 +55,7 @@ double TupleEstimator::Estimate(const LcpArray& lcp)
 
     logstream << "t=" << t - 1 << ", pmax=" << pmax;
 
-    return UpperBoundProbability(pmax, len);
+    return -log2(UpperBoundProbability(pmax, len));
 }
 
 double TupleEstimator::CalculateMaximumProbability(const std::vector<size_t>& Q, size_t t, size_t length) const

@@ -22,32 +22,50 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MCW_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MCW_H__
 
-#include "entropy_estimator.h"
+#include "prediction_estimator.h"
+
+#include <array>
+#include <vector>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class PredictionEstimator : public EntropyEstimator 
-    {
-    protected:
-        size_t countAlphabets = 0;
-        size_t countPredictions = 0;
-        size_t winner = 0;
-        size_t correctRuns = 0;
-        size_t countCorrects = 0;
-        size_t maxCorrectRuns = 0;
+    class MostCommonInWindow {
+    private:
+        int16_t mcv;
+        size_t windowSize;
+        std::vector<uint8_t> window;
+        std::vector<size_t> count;
 
     public:
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
-        double EstimateByPrediction();
+        MostCommonInWindow() = default;
+        MostCommonInWindow(size_t countAlphabets, size_t windowSize);
 
-    protected:
-        virtual void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) = 0;
+        void Add(uint8_t value);
+        int16_t Frequent() const;
 
     private:
-        double EvaluateBinarySearch(double arg1, double arg2) const override;
+        void UpdateMcv();
+    };
+
+    class MultiMcwPredictionEstimator : public PredictionEstimator 
+    {
+    private:
+        std::vector<MostCommonInWindow> mcw;
+        std::array<int16_t, 4> frequent;
+        std::array<size_t, 4> scoreboard;
+
+    public:
+        MultiMcwPredictionEstimator();
+        std::string Name() const override;
+
+    private:
+        void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) override;
+        void Initialize(size_t length);
+        void UpdatePrediction(uint8_t value);
+        void UpdateScoreBoard(uint8_t value);
     };
 }}}
 

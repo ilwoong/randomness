@@ -25,6 +25,7 @@
 #include "mcv_estimator.h"
 
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 using namespace randomness::sp800_90b::estimator;
@@ -47,5 +48,5 @@ double McvEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 
     logstream << "max=" << max << ", pmax=" << pmax;
 
-    return UpperBoundProbability(pmax, len);
+    return -log2(UpperBoundProbability(pmax, len));
 }

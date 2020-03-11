@@ -22,18 +22,21 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATORS_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATORS_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
 
-#include "estimator/mcv_estimator.h"
-#include "estimator/collision_estimator.h"
-#include "estimator/markov_estimator.h"
-#include "estimator/compression_estimator.h"
-#include "estimator/tuple_estimator.h"
-#include "estimator/lrs_estimator.h"
-#include "estimator/multi_mmc_prediction_estimator.h"
-#include "estimator/lag_prediction_estimator.h"
-#include "estimator/multi_mcw_prediction_estimator.h"
-#include "estimator/lz78y_prediction_estimator.h"
+#include "prediction_estimator.h"
+
+namespace randomness { namespace sp800_90b { namespace estimator {
+
+    class MultiMmcPredictionEstimator : public PredictionEstimator 
+    {
+    public:
+        std::string Name() const override;
+    
+    private:
+        void CountCorrectPredictions(const uint8_t* data, size_t len, size_t alph_size) override;
+    };
+}}}
 
 #endif

@@ -58,7 +58,7 @@ double LrsEstimator::Estimate(const LcpArray& lcp)
 
     logstream << "u=" << u << ", v=" << lcp.Max() << ", pmax=" << pmax;
 
-    return UpperBoundProbability(pmax, len);
+    return -log2(UpperBoundProbability(pmax, len));
 }
 
 double LrsEstimator::CalculateMaximumProbability(const std::vector<size_t>& C, size_t u, size_t v, size_t length) const

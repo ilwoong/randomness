@@ -33,21 +33,31 @@ static const double LogAlpha = log(0.99);
 
 double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
 {
+    countAlphabets = alph_size;
     CountCorrectPredictions(data, len, alph_size);
-    return EstimateByPrediction(len);
+    return EstimateByPrediction();
 }
 
-double PredictionEstimator::EstimateByPrediction(size_t k)
+double PredictionEstimator::EstimateByPrediction()
 {
-    auto max = 1.0 / k;
+    auto max = 1.0 / countAlphabets;
     auto p_global = static_cast<double>(countCorrects) / static_cast<double>(countPredictions);
     auto p_global_prime = UpperBoundProbability(p_global, countPredictions);
 
     max = std::max(max, p_global_prime);
     if (max < 1.0) {
-        auto p_local = BinarySearch(maxCorrectRuns + 1, 0.5, 1.0);
-        max = std::max(max, p_local);
+        try {
+            auto p_local = BinarySearch(logl(0.99), 0.0, 1.0, maxCorrectRuns + 1);
+            max = std::max(max, p_local);
+            logstream << ", p_local=" << p_local;
+            
+        } catch (std::exception e) {
+            logstream << ", exception=" << e.what();
+        }
     }
+
+    logstream << ", p_global=" << p_global_prime;
+    logstream << ", p_max=" << max;
 
     return -log2(max);
 }

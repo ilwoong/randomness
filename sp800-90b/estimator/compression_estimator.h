@@ -22,12 +22,12 @@
  * THE SOFTWARE.
  */
 
-#ifndef _RANDOMNESS_SP800_90B_ESTIMATOR_COMPRESSION_H__
-#define _RANDOMNESS_SP800_90B_ESTIMATOR_COMPRESSION_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_COMPRESSION_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_COMPRESSION_H__
 
 #include "entropy_estimator.h"
 
-namespace randomness { namespace sp800_90b { namespace estimator{
+namespace randomness { namespace sp800_90b { namespace estimator {
 
     class CompressionEstimator : public EntropyEstimator 
     {

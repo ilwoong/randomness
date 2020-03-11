@@ -52,8 +52,7 @@ static bool IsOutClosedInterval(double value, double itv1, double itv2)
 
 double EntropyEstimator::UpperBoundProbability(double prob, size_t length) const
 {
-    auto upper_bound = std::min(1.0, prob + Zalpha * sqrt(prob * (1.0 - prob) / (length - 1.0)));
-    return -log2(upper_bound);
+    return std::min(1.0, prob + Zalpha * sqrt(prob * (1.0 - prob) / (length - 1.0)));
 }
 
 std::string EntropyEstimator::Log() const

@@ -73,20 +73,23 @@ void write_bytes(const char* filepath, const char* data, size_t length)
     ofs.close();
 }
 
-std::vector<std::shared_ptr<EntropyEstimator>> get_estimators()
+std::vector<std::shared_ptr<EntropyEstimator>> get_estimators(bool forBinary)
 {
     std::vector<std::shared_ptr<EntropyEstimator>> estimators;
     estimators.push_back(std::make_shared<McvEstimator>());
-    estimators.push_back(std::make_shared<CollisionEstimator>());
-    estimators.push_back(std::make_shared<MarkovEstimator>());
-    estimators.push_back(std::make_shared<CompressionEstimator>());
+    if (forBinary) {
+        estimators.push_back(std::make_shared<CollisionEstimator>());
+        estimators.push_back(std::make_shared<MarkovEstimator>());
+        estimators.push_back(std::make_shared<CompressionEstimator>());
+    }
     estimators.push_back(std::make_shared<TupleEstimator>());
     estimators.push_back(std::make_shared<LrsEstimator>());
+    estimators.push_back(std::make_shared<MultiMcwPredictionEstimator>());
 
     return estimators;
 }
 
-void run_estimators(const char* filepath) 
+void run_estimators(const char* filepath, size_t alph_size) 
 {    
     std::vector<uint8_t> data(MILLION, 0);
     auto read = read_bytes(reinterpret_cast<char*>(data.data()), filepath, MILLION);
@@ -100,21 +103,12 @@ void run_estimators(const char* filepath)
         }
     }
 
-    /* binary */
-    auto pdata = bin_data.data();
-    auto data_length = bin_data.size();
-    auto alph_size = 2;
-    /**/
-
-    /* literal * /
-    auto pdata = data.data();
-    auto data_length = data.size();
-    auto alph_size = 256;
-    /**/
+    auto pdata = alph_size == 2 ? bin_data.data() : data.data();
+    auto data_length = alph_size == 2 ? bin_data.size() : data.size();
 
     std::cout << read << " bytes are read" << std::endl;
 
-    auto estimators = get_estimators();
+    auto estimators = get_estimators(alph_size == 2);
     double total_elapsed = omp_get_wtime();
 
     auto lcp = LcpArray::Create(pdata, data_length);
@@ -147,6 +141,7 @@ void run_estimators(const char* filepath)
 
 int main(int argc, const char** argv)
 {
-    run_estimators("./samples/random_1MB.bin");
+    run_estimators("./samples/random_1MB.bin", 2);
+    run_estimators("./samples/random_1MB.bin", 256);
     return 0;
 }
