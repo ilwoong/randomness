@@ -35,6 +35,6 @@ void Lz78yPredictionEstimator::Initialize()
 {
 }
 
-void Lz78yPredictionEstimator::UpdatePrediction(uint8_t feed)
+void Lz78yPredictionEstimator::UpdatePrediction(size_t idx)
 {    
 }

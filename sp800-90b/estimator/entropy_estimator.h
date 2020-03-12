@@ -31,8 +31,6 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    static constexpr double Zalpha = 2.5758293035489008;
-
     class EntropyEstimator 
     {
     protected:
@@ -42,11 +40,6 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         virtual std::string Name() const = 0;
         virtual double Estimate(const uint8_t* data, size_t len, size_t count_alphabets) = 0;
         std::string Log() const;
-
-    protected:
-        double UpperBoundProbability(double prob, size_t length) const;
-        double BinarySearch(double arg, double ldomain, double hdomain, double optional = 0.0);
-        virtual double EvaluateBinarySearch(double arg1, double arg2) const;
     };
 }}}
 

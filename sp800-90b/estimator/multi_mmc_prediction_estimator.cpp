@@ -35,6 +35,6 @@ void MultiMmcPredictionEstimator::Initialize()
 {
 }
 
-void MultiMmcPredictionEstimator::UpdatePrediction(uint8_t feed)
+void MultiMmcPredictionEstimator::UpdatePredictions(size_t idx)
 {    
 }

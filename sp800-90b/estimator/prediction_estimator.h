@@ -25,40 +25,30 @@
 #ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
 #define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
 
-#include "entropy_estimator.h"
-
-#include <vector>
+#include <cstddef>
+#include <sstream>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class PredictionEstimator : public EntropyEstimator 
-    {
-    protected:
-        size_t countSamples = 0;
-        size_t countAlphabets = 0;
-        size_t countPredictions = 0;
-        size_t winner = 0;
-        size_t correctRuns = 0;
-        size_t countCorrects = 0;
-        size_t maxCorrectRuns = 0;
+    typedef struct {
+        size_t countAlphabets;
+        size_t maxCorrectRuns;
+        size_t countCorrects;
+        size_t countPredictions;
+    } correct_info_t;
 
-        const uint8_t* sample;
-        std::vector<int16_t> frequent;
-        std::vector<size_t> scoreboard;
+    class PredictionEstimator 
+    {
+    private:
+        correct_info_t info;
 
     public:
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
-        double EstimateByPrediction();
-
-    protected:
-        virtual void Initialize() = 0;
-        virtual void UpdatePrediction(uint8_t feed) = 0;
-        void CountCorrects(uint8_t feed);
-        void UpdateScoreBoard(uint8_t feed);
+        double Estimate(correct_info_t info);
 
     private:
-        void CountCorrectPredictions();
-        double EvaluateBinarySearch(double arg1, double arg2) const override;
+        double CalculateLocal();
+        double CalculateGlobal();
+        double EvaluateBinarySearch(double arg1, double arg2) const;
     };
 }}}
 

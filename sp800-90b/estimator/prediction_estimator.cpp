@@ -27,41 +27,47 @@
 #include <algorithm>
 #include <cmath>
 
+#include "binary_search.h"
+#include "boundary.h"
+
 using namespace randomness::sp800_90b::estimator;
 
 static const double LogAlpha = log(0.99);
 
-double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
+double PredictionEstimator::Estimate(correct_info_t info)
 {
-    sample = data;
-    countSamples = len;
-    countAlphabets = alph_size;
-    CountCorrectPredictions();
-    return EstimateByPrediction();
-}
+    this->info = info;
 
-double PredictionEstimator::EstimateByPrediction()
-{
-    auto max = 1.0 / countAlphabets;
-    auto p_global = static_cast<double>(countCorrects) / static_cast<double>(countPredictions);
-    auto p_global_prime = UpperBoundProbability(p_global, countPredictions);
-
-    max = std::max(max, p_global_prime);
-    if (max < 1.0) {
-        try {
-            auto p_local = BinarySearch(logl(0.99), 0.0, 1.0, maxCorrectRuns + 1);
-            max = std::max(max, p_local);
-            logstream << ", p_local=" << p_local;
-            
-        } catch (std::exception e) {
-            logstream << ", exception=" << e.what();
-        }
-    }
-
-    logstream << ", p_global=" << p_global_prime;
-    logstream << ", p_max=" << max;
+    auto p = 1.0 / info.countAlphabets;
+    auto p_local = CalculateLocal();
+    auto p_global = CalculateGlobal();
+    auto max = std::max(p, p_global);
+    max = std::max(max, p_local);
 
     return -log2(max);
+}
+
+double PredictionEstimator::CalculateLocal() 
+{
+    auto func = std::bind(&PredictionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
+    BinarySearch search;
+    search.SetFunction(func);
+
+    auto p_local = 1.0;
+    try {
+        p_local = search.FindSolution(LogAlpha, 0.0, 1.0, info.maxCorrectRuns + 1);
+        
+    } catch (std::exception e) {
+        p_local = 1.0;
+    }
+
+    return p_local;
+}
+
+double PredictionEstimator::CalculateGlobal()
+{
+    auto p_global = static_cast<double>(info.countCorrects) / static_cast<double>(info.countPredictions);
+    return UpperBoundProbability(p_global, info.countPredictions);
 }
 
 double PredictionEstimator::EvaluateBinarySearch(double p, double r) const
@@ -73,48 +79,5 @@ double PredictionEstimator::EvaluateBinarySearch(double p, double r) const
         x = 1.0 + q * powl(p, r) * powl(x, r + 1.0);
     }
 
-    return logl(1.0 - p * x) - logl((r + 1 - r * x) * q) - (countPredictions + 1.0) * logl(x);
-}
-
-void PredictionEstimator::CountCorrectPredictions()
-{
-    Initialize();
-
-    for (size_t i = 1; i < countSamples; ++i) {
-        UpdatePrediction(sample[i]);
-        UpdateScoreBoard(sample[i]);
-    }
-
-    if (maxCorrectRuns < correctRuns) {
-        maxCorrectRuns = correctRuns;
-    }
-
-    logstream << "countCorrects=" << countCorrects << ", max_run=" << maxCorrectRuns;
-}
-
-void PredictionEstimator::CountCorrects(uint8_t feed)
-{
-    if (frequent[winner] == feed) {
-        correctRuns += 1;
-        countCorrects += 1;
-
-    } else {
-        if (maxCorrectRuns < correctRuns) {
-            maxCorrectRuns = correctRuns;
-        }
-        correctRuns = 0;
-    }
-}
-
-void PredictionEstimator::UpdateScoreBoard(uint8_t feed) 
-{
-    for (auto i = 0; i < 4; ++i) {
-        if (frequent[i] == feed) {
-            scoreboard[i] += 1;
-
-            if (scoreboard[i] >= scoreboard[winner]) {
-                winner = i;
-            }
-        }
-    }
+    return logl(1.0 - p * x) - logl((r + 1 - r * x) * q) - (info.countPredictions + 1.0) * logl(x);
 }

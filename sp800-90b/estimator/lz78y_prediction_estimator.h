@@ -25,18 +25,17 @@
 #ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_LZ78Y_H__
 #define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_LZ78Y_H__
 
-#include "prediction_estimator.h"
+#include "entropy_estimator.h"
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class Lz78yPredictionEstimator : public PredictionEstimator 
+    class Lz78yPredictionEstimator : public EntropyEstimator 
     {
     public:
         std::string Name() const override;
     
     private:
-        void Initialize() override;
-        void UpdatePrediction(uint8_t feed) override;
+        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
     };
 }}}
 

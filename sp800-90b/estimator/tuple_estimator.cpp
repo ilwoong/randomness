@@ -26,6 +26,8 @@
 
 #include <cmath>
 
+#include "boundary.h"
+
 using namespace randomness::sp800_90b::estimator;
 
 std::string TupleEstimator::Name() const

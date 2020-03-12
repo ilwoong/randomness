@@ -36,7 +36,7 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
 
     private:
-        double EvaluateBinarySearch(double arg1, double arg2) const override;
+        double EvaluateBinarySearch(double arg1, double arg2) const;
         double FromBinaryCollisions(const uint8_t* data, size_t len);
     };
 }}}

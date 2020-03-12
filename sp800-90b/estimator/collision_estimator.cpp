@@ -27,6 +27,9 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "binary_search.h"
+#include "boundary.h"
+
 using namespace randomness::sp800_90b::estimator;
 
 std::string CollisionEstimator::Name() const
@@ -40,11 +43,14 @@ double CollisionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph
         throw std::invalid_argument("only applicable to binary data");
     }
 
-    auto lower_bound_mean = FromBinaryCollisions(data, len);
+    auto func = std::bind(&CollisionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
+    BinarySearch search;
+    search.SetFunction(func);
 
+    auto lower_bound_mean = FromBinaryCollisions(data, len);    
     auto prob = 0.0;
     try {
-        prob = BinarySearch(lower_bound_mean, 0.5, 1.0);
+        prob = search.FindSolution(lower_bound_mean, 0.5, 1.0);
         logstream << ", p=" << prob;
 
     } catch (std::exception e) {
@@ -79,9 +85,9 @@ double CollisionEstimator::FromBinaryCollisions(const uint8_t* data, size_t len)
         count_collisions += 1;
     }
 
-    auto mean = static_cast<double>(index) / count_collisions;
-    auto std_dev = sqrt((squared_sum - index * mean) / (count_collisions - 1));
-    auto lower_bound_mean = mean - Zalpha * sqrt(std_dev / count_collisions);
+    auto mean = static_cast<double>(index) / count_collisions;    
+    auto std_dev = sqrt((squared_sum - index * mean) / static_cast<double>(count_collisions - 1.0));
+    auto lower_bound_mean = LowerBoundMean(mean, std_dev, count_collisions);
 
     logstream << "X̄=" << mean << ", σ^=" << std_dev << ", X̄'=" << lower_bound_mean;
 
@@ -95,7 +101,7 @@ double CollisionEstimator::EvaluateBinarySearch(double p, double ignored) const
     auto qinv = 1.0 / q;
     auto diff = 0.5 * (pinv - qinv);
 
-    auto Fq = q * (2.0 * q * q + 2.0 * q + 1);
+    auto Fq = q * ((2.0 * q * q) + (2.0 * q) + 1.0);
     
     auto lhs = (p * qinv * qinv) * (1.0 + diff) * Fq;
     auto rhs = p * qinv * diff;

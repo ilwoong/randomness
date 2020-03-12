@@ -22,22 +22,24 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_BOUNDARY_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_BOUNDARY_H__
 
-#include "scoreboard_estimator.h"
+#include <cstddef>
+#include <algorithm>
+#include <cmath>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MultiMmcPredictionEstimator : public ScoreboardEstimator 
-    {
-    public:
-        std::string Name() const override;
-    
-    private:
-        void Initialize() override;
-        void UpdatePredictions(size_t idx) override;
-    };
+    static constexpr double Zalpha = 2.5758293035489008;
+
+    inline double UpperBoundProbability(double p, size_t length) {
+        return std::min(1.0, p + Zalpha * sqrt(p * (1.0 - p) / (length - 1.0)));
+    }
+
+    inline double LowerBoundMean(double mean, double std_dev, size_t length) {
+        return mean - Zalpha * std_dev / sqrt(length);;
+    }
 }}}
 
 #endif

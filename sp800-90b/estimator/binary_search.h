@@ -22,21 +22,21 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_BINARY_SEARCH_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_BINARY_SEARCH_H__
 
-#include "scoreboard_estimator.h"
+#include <functional>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MultiMmcPredictionEstimator : public ScoreboardEstimator 
-    {
-    public:
-        std::string Name() const override;
-    
+    class BinarySearch {
+
     private:
-        void Initialize() override;
-        void UpdatePredictions(size_t idx) override;
+        std::function<double(double, double)> evaluate;
+
+    public:
+        void SetFunction(std::function<double(double, double)> func);
+        double FindSolution(double arg, double ldomain, double hdomain, double optional = 0.0);
     };
 }}}
 

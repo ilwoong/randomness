@@ -22,21 +22,42 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_SCOREBOARD_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_SCOREBOARD_H__
 
-#include "scoreboard_estimator.h"
+#include "entropy_estimator.h"
+
+#include <vector>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MultiMmcPredictionEstimator : public ScoreboardEstimator 
+    class ScoreboardEstimator : public EntropyEstimator 
     {
+    protected:
+        size_t countSamples = 0;
+        size_t countAlphabets = 0;
+        size_t countPredictions = 0;
+        size_t winner = 0;
+        size_t correctRuns = 0;
+        size_t countCorrects = 0;
+        size_t maxCorrectRuns = 0;
+        size_t startPredictionIndex = 0;
+
+        const uint8_t* sample;
+        std::vector<int16_t> prediction;
+        std::vector<size_t> scoreboard;
+
     public:
-        std::string Name() const override;
-    
+        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
+
+    protected:
+        virtual void Initialize() = 0;
+        virtual void UpdatePredictions(size_t idx) = 0;
+
     private:
-        void Initialize() override;
-        void UpdatePredictions(size_t idx) override;
+        void MakePredictions();
+        void CountCorrectPredictions(size_t idx);
+        void UpdateScoreBoard(size_t idx);
     };
 }}}
 

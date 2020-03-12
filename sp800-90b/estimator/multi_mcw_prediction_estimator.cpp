@@ -41,27 +41,24 @@ void MultiMcwPredictionEstimator::MostCommonInWindow::Add(uint8_t value)
     count[value] += 1;
     window.push_back(value);
 
-    if (window.size() > windowSize)
-    {
+    if (window.size() > windowSize) {
         count[window[0]] -= 1;
         window.erase(window.begin());
-        UpdateMcv();    
     }
 }
 
 int16_t MultiMcwPredictionEstimator::MostCommonInWindow::Frequent() const
 {
-    return mcv;
-}
+    if (window.size() < windowSize) {
+        return -1;
+    }
 
-void MultiMcwPredictionEstimator::MostCommonInWindow::UpdateMcv()
-{
     auto max = *std::max_element(count.begin(), count.end());
     auto iter = window.rbegin();
     while (count[*iter] != max) {
         std::advance(iter, 1);
     }
-    mcv = *iter;
+    return *iter;
 }
 
 std::string MultiMcwPredictionEstimator::Name() const
@@ -71,13 +68,15 @@ std::string MultiMcwPredictionEstimator::Name() const
 
 void MultiMcwPredictionEstimator::Initialize()
 {
-    countPredictions = countSamples - WindowSize[0];
+    startPredictionIndex = WindowSize[0];
+    countPredictions = countSamples - startPredictionIndex;
 
     winner = 0;
+    countCorrects = 0;
     correctRuns = 0;
     maxCorrectRuns = 0;
     
-    frequent.assign(4, -1);
+    prediction.assign(4, -1);
     scoreboard.assign(4, 0);
 
     mcw.clear();
@@ -92,12 +91,10 @@ void MultiMcwPredictionEstimator::Initialize()
     }
 }
 
-void MultiMcwPredictionEstimator::UpdatePrediction(uint8_t feed)
+void MultiMcwPredictionEstimator::UpdatePredictions(size_t idx)
 {
     for (auto j = 0; j < 4; ++j) {
-        frequent[j] = mcw[j].Frequent();
-        mcw[j].Add(feed);
+        prediction[j] = mcw[j].Frequent();
+        mcw[j].Add(sample[idx]);
     }
-
-    CountCorrects(feed);
 }

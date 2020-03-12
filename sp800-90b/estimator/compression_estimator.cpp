@@ -27,6 +27,9 @@
 #include <cmath>
 #include <vector>
 
+#include "binary_search.h"
+#include "boundary.h"
+
 using namespace randomness::sp800_90b::estimator;
 
 std::string CompressionEstimator::Name() const
@@ -36,11 +39,15 @@ std::string CompressionEstimator::Name() const
 
 double CompressionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {
+    auto func = std::bind(&CompressionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
+    BinarySearch search;
+    search.SetFunction(func);
+
     auto mean = Calculate(data, len);
     auto entropy = 1.0;
-
+    
     try {
-        auto p = BinarySearch(mean, 1.0 / (1 << blockLength), 1.0);
+        auto p = search.FindSolution(mean, 1.0 / (1 << blockLength), 1.0);
         logstream << ", p=" << p;
         entropy = -log2(p) / static_cast<double>(blockLength);
 
@@ -86,7 +93,7 @@ double CompressionEstimator::Calculate(const uint8_t* data, size_t len)
 
     auto mean = static_cast<double>(sum) / countTestBlocks;
     auto std_dev = 0.5907 * sqrt((squared_sum / (countTestBlocks - 1)) - mean * mean);
-    auto lower_bound_mean = mean - (Zalpha * std_dev) / sqrt(countTestBlocks);
+    auto lower_bound_mean = LowerBoundMean(mean, std_dev, countTestBlocks);
 
     logstream << "X̄=" << mean << ", σ^=" << std_dev << ", X̄'=" << lower_bound_mean;
 

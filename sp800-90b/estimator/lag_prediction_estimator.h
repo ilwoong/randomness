@@ -25,20 +25,20 @@
 #ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_LAG_H__
 #define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_LAG_H__
 
-#include "prediction_estimator.h"
+#include "scoreboard_estimator.h"
 
 #include <vector>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class LagPredictionEstimator : public PredictionEstimator 
+    class LagPredictionEstimator : public ScoreboardEstimator 
     {
     public:
         std::string Name() const override;
     
     private:
         void Initialize() override;
-        void UpdatePrediction(uint8_t feed) override;
+        void UpdatePredictions(size_t idx) override;
     };
 }}}
 

@@ -28,6 +28,8 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+static constexpr size_t MaxLagSize = 128;
+
 std::string LagPredictionEstimator::Name() const
 {
     return "Lag Prediction Estimate";
@@ -35,22 +37,20 @@ std::string LagPredictionEstimator::Name() const
 
 void LagPredictionEstimator::Initialize()
 {
-    countPredictions = countSamples - 1;
+    startPredictionIndex = 1;
+    countPredictions = countSamples - startPredictionIndex;
     
     winner = 0;
+    countCorrects = 0;
     correctRuns = 0;
     maxCorrectRuns = 0;
 
-    frequent.assign(128, -1);
-    scoreboard.assign(128, 0);
-
-    frequent[127] = sample[0];
+    prediction.assign(MaxLagSize, -1);
+    scoreboard.assign(MaxLagSize, 0);
 }
 
-void LagPredictionEstimator::UpdatePrediction(uint8_t feed)
+void LagPredictionEstimator::UpdatePredictions(size_t idx)
 {
-    CountCorrects(feed);
-
-    frequent.push_back(feed);
-    frequent.erase(frequent.begin());
+    prediction.insert(prediction.begin(), sample[idx - 1]);
+    prediction.erase(prediction.end() - 1);
 }

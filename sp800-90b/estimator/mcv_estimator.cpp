@@ -28,6 +28,8 @@
 #include <cmath>
 #include <vector>
 
+#include "boundary.h"
+
 using namespace randomness::sp800_90b::estimator;
 
 std::string McvEstimator::Name() const
