@@ -22,29 +22,46 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MMC_H__
-
-#include "scoreboard_estimator.h"
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_MCV_TRACKER_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_MCV_TRACKER_H__
 
 #include <array>
-
-#include "markov_model_with_counting.h"
+#include <cstdint>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MultiMmcPredictionEstimator : public ScoreboardEstimator 
-    {
+    class McvTracker {
     private:
-        std::array<MarkovModelWithCounting, 16> mmc;
-        std::array<MarkovModelWithCountingBinary, 16> mmc_binary;
+        int16_t mcv;
+        size_t max_ctr;
+        std::array<size_t, 256> counter = { 0, };
 
     public:
-        std::string Name() const override;
-    
-    private:
-        void Initialize() override;
-        void UpdatePredictions(size_t idx) override;
+        void Create(uint8_t feed)
+        {
+            counter[feed] = 1;
+            mcv = feed;
+            max_ctr = 1;
+        }
+
+        void Update(uint8_t feed) 
+        {
+            counter[feed] += 1;
+            if ((max_ctr < counter[feed]) || (max_ctr == counter[feed]) && (feed > mcv)) {
+                max_ctr = counter[feed];
+                mcv = feed;
+            }
+        }
+
+        int16_t MostCommonValue() const 
+        {
+            return mcv;
+        }
+
+        size_t MostCommonCounter() const
+        {
+            return max_ctr;
+        }
     };
 }}}
 

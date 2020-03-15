@@ -75,17 +75,21 @@ void write_bytes(const char* filepath, const char* data, size_t length)
 
 std::vector<std::shared_ptr<EntropyEstimator>> get_estimators(bool forBinary)
 {
-    std::vector<std::shared_ptr<EntropyEstimator>> estimators;
+    std::vector<std::shared_ptr<EntropyEstimator>> estimators;    
     estimators.push_back(std::make_shared<McvEstimator>());
+    
     if (forBinary) {
         estimators.push_back(std::make_shared<CollisionEstimator>());
         estimators.push_back(std::make_shared<MarkovEstimator>());
         estimators.push_back(std::make_shared<CompressionEstimator>());
     }
+
     estimators.push_back(std::make_shared<TupleEstimator>());
     estimators.push_back(std::make_shared<LrsEstimator>());
+    
     estimators.push_back(std::make_shared<MultiMcwPredictionEstimator>());
     estimators.push_back(std::make_shared<LagPredictionEstimator>());
+    estimators.push_back(std::make_shared<MultiMmcPredictionEstimator>());
 
     return estimators;
 }
