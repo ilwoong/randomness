@@ -22,11 +22,11 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MARKOV_MODEL_WITH_COUNTING_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MARKOV_MODEL_WITH_COUNTING_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_LZ78Y_PREDICTOR_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_LZ78Y_PREDICTOR_H__
 
-#include <array>
 #include <cstdint>
+
 #include <map>
 #include <vector>
 
@@ -34,48 +34,46 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    static constexpr size_t MaxEntries = 100000;
-    using trace_t = std::vector<uint8_t>;
-    using counter_t = std::array<size_t, 256>;
-    using chain_t = std::map<trace_t, McvTracker>;
-
-    class MarkovModelWithCounting {
-
-    private:
-        size_t order;
-        size_t entries;
-        trace_t trace;
-        chain_t chain;
-
+    class Lz78yPredictor {
     public:
-        void init(const uint8_t* sample, size_t order);
-        void new_entry(uint8_t sample);
-        int16_t update_entry(chain_t::iterator& iter, uint8_t sample);
-        int16_t predict(uint8_t sample);
-
-    private:
-        void update_trace(uint8_t sample);
+        virtual void Initialize(const uint8_t* sample, size_t order) = 0;
+        virtual McvTracker Predict(uint8_t sample) = 0;
+        virtual void CreateEntry(uint8_t sample) = 0;
+        virtual void UpdateTrace(uint8_t sample) = 0;
     };
 
-    using binary_trace_t = int16_t;
-    using binary_chain_t = std::map<uint16_t, McvTracker>;
+    class Lz78yPredictorBinary : public Lz78yPredictor 
+    {
+    using trace_t = uint16_t;
+    using dict_t = std::vector<McvTracker>;
 
-    class MarkovModelWithCountingBinary {
     private:
-        size_t order;
-        size_t entries;
-        binary_trace_t mask;
-        binary_trace_t trace;
-        binary_chain_t chain;
+        trace_t mask;
+        trace_t trace;
+        dict_t dictionary;
 
     public:
-        void init(const uint8_t* sample, size_t order);
-        void new_entry(uint8_t sample);
-        int16_t update_entry(binary_chain_t::iterator& iter, uint8_t sample);
-        int16_t predict(uint8_t sample);
+        void Initialize(const uint8_t* sample, size_t order) override;
+        McvTracker Predict(uint8_t sample) override;
+        void CreateEntry(uint8_t sample) override;
+        void UpdateTrace(uint8_t sample) override;
+    };
+
+    // TODO:: countCorrect mismatch should be fixed
+    class Lz78yPredictorLiteral : public Lz78yPredictor 
+    {
+    using trace_t = std::vector<uint8_t>;
+    using dict_t = std::map<trace_t, McvTracker>;
 
     private:
-        void update_trace(uint8_t sample);
+        trace_t trace;
+        dict_t dictionary;
+
+    public:
+        void Initialize(const uint8_t* sample, size_t order) override;
+        McvTracker Predict(uint8_t sample) override;
+        void CreateEntry(uint8_t sample) override;
+        void UpdateTrace(uint8_t sample) override;
     };
 
 }}}

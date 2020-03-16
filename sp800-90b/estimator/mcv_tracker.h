@@ -32,8 +32,8 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     class McvTracker {
     private:
-        int16_t mcv;
-        size_t max_ctr;
+        int16_t mcv = -1;
+        size_t max_ctr = 0;
         std::array<size_t, 256> counter = { 0, };
 
     public:

@@ -28,16 +28,16 @@
 #include "scoreboard_estimator.h"
 
 #include <array>
+#include <memory>
 
-#include "markov_model_with_counting.h"
+#include "mmc_predictor.h"
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
     class MultiMmcPredictionEstimator : public ScoreboardEstimator 
     {
     private:
-        std::array<MarkovModelWithCounting, 16> mmc;
-        std::array<MarkovModelWithCountingBinary, 16> mmc_binary;
+        std::vector<std::shared_ptr<MmcPredictor>> mmc;
 
     public:
         std::string Name() const override;

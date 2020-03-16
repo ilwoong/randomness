@@ -24,15 +24,9 @@
 
 #include "multi_mmc_prediction_estimator.h"
 
-#include <algorithm>
-
-#include <omp.h>
-
 using namespace randomness::sp800_90b::estimator;
 
-using history_t = std::vector<uint8_t>;
-using counter_t = std::array<size_t, 256>;
-using chain_t = std::map<history_t, counter_t>;
+static constexpr size_t CountPredictors = 16;
 
 std::string MultiMmcPredictionEstimator::Name() const
 {
@@ -49,36 +43,32 @@ void MultiMmcPredictionEstimator::Initialize()
     correctRuns = 0;
     maxCorrectRuns = 0;
 
-    prediction.assign(16, -1);
-    scoreboard.assign(16, 0);
+    prediction.assign(CountPredictors, -1);
+    scoreboard.assign(CountPredictors, 0);
 
-    for (auto d = 0; d < 16; ++d) {
+    mmc.clear();
+    for (auto d = 0; d < CountPredictors; ++d) {
         if (countAlphabets == 2) {
-            mmc_binary[d].init(sample, d + 1);
-        } 
-        else {
-            mmc[d].init(sample, d + 1);
+            mmc.push_back(std::make_shared<MmcPredictorBinary>());
         }
+        else {
+            mmc.push_back(std::make_shared<MmcPredictorLiteral>());
+        }
+        mmc[d]->Initialize(sample, d + 1);
     }
 }
 
 void MultiMmcPredictionEstimator::UpdatePredictions(size_t idx)
 {
-    auto min = std::min(16, static_cast<int>(idx - 1));
+    auto min = std::min(CountPredictors, idx - 1);
     auto feed = sample[idx];
 
     for (auto d = 0; d < min; ++d) {
-        prediction[d] = countAlphabets == 2 ? mmc_binary[d].predict(feed) : mmc[d].predict(feed);
+        prediction[d] = mmc[d]->Predict(feed);
         
         if (prediction[d] == -1) {
             for (auto i = d + 1; i < min; ++i) {
-                if (countAlphabets == 2) {
-                    mmc_binary[i].new_entry(feed);
-                } 
-                else {
-                    mmc[i].new_entry(feed);
-                }
-                
+                mmc[i]->CreateEntry(feed);
             }
             break;
         }
