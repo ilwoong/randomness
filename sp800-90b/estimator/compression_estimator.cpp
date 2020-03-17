@@ -40,8 +40,7 @@ std::string CompressionEstimator::Name() const
 double CompressionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
 {
     auto func = std::bind(&CompressionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
-    BinarySearch search;
-    search.SetFunction(func);
+    BinarySearch search(func);
 
     auto mean = Calculate(data, len);
     auto entropy = 1.0;

@@ -35,20 +35,25 @@ using namespace randomness::sp800_90b::estimator;
 
 static const double LogAlpha = log(0.99);
 
-double ScoreboardEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
+double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
 {
     sample = data;
     countSamples = len;
     countAlphabets = alph_size;
+
+    winner = 0;
+    countCorrects = 0;
+    correctRuns = 0;
+    maxCorrectRuns = 0;
     
     MakePredictions();
 
-    correct_info_t info = {countAlphabets, maxCorrectRuns, countCorrects, countPredictions};
-    PredictionEstimator pe;
-    return pe.Estimate(info);
+    prediction_summary_t summary = {countAlphabets, maxCorrectRuns, countCorrects, countPredictions};
+    PredictionEvaluator pe;
+    return pe.Estimate(summary);
 }
 
-void ScoreboardEstimator::MakePredictions()
+void PredictionEstimator::MakePredictions()
 {
     Initialize();
 
@@ -65,7 +70,7 @@ void ScoreboardEstimator::MakePredictions()
     logstream << "countCorrects=" << countCorrects << ", max_run=" << maxCorrectRuns;
 }
 
-void ScoreboardEstimator::CountCorrectPredictions(size_t idx)
+void PredictionEstimator::CountCorrectPredictions(size_t idx)
 {
     if (prediction[winner] == sample[idx]) {
         correctRuns += 1;
@@ -79,7 +84,7 @@ void ScoreboardEstimator::CountCorrectPredictions(size_t idx)
     }
 }
 
-void ScoreboardEstimator::UpdateScoreBoard(size_t idx) 
+void PredictionEstimator::UpdateScoreBoard(size_t idx) 
 {
     for (auto i = 0; i < scoreboard.size(); ++i) {
         if (prediction[i] == sample[idx]) {

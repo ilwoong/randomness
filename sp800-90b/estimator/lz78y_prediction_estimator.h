@@ -25,7 +25,7 @@
 #ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_LZ78Y_H__
 #define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_LZ78Y_H__
 
-#include "entropy_estimator.h"
+#include "scoreboard_estimator.h"
 
 #include <map>
 #include <memory>
@@ -35,31 +35,18 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class Lz78yPredictionEstimator : public EntropyEstimator 
+    class Lz78yPredictionEstimator : public PredictionEstimator 
     {
     private:
-        const uint8_t* sample;
-        size_t countSamples;
-        size_t countAlphabets;
-
-        std::vector<std::shared_ptr<Lz78yPredictor>> dictionary;
-
-        int16_t prediction;
         size_t entries;
-        size_t countPredictions;
-        size_t countCorrects;
-        size_t correctRuns;
-        size_t maxCorrectRuns;
-        size_t startPredictionIndex;
-
+        std::vector<std::shared_ptr<Lz78yPredictor>> dictionary;
+        
     public:
         std::string Name() const override;
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
 
     private:
         void Initialize();
         void UpdatePredictions(size_t idx);
-        void CountCorrectPredictions(size_t idx);
     };
 }}}
 

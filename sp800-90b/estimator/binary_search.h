@@ -35,6 +35,10 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         std::function<double(double, double)> evaluate;
 
     public:
+        BinarySearch() = default;
+        BinarySearch(std::function<double(double, double)> func);
+        ~BinarySearch() = default;
+        
         void SetFunction(std::function<double(double, double)> func);
         double FindSolution(double arg, double ldomain, double hdomain, double optional = 0.0);
     };

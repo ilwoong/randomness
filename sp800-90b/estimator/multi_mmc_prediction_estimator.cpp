@@ -38,11 +38,6 @@ void MultiMmcPredictionEstimator::Initialize()
     startPredictionIndex = 2;
     countPredictions = countSamples - startPredictionIndex;
 
-    winner = 0;
-    countCorrects = 0;
-    correctRuns = 0;
-    maxCorrectRuns = 0;
-
     prediction.assign(CountPredictors, -1);
     scoreboard.assign(CountPredictors, 0);
 

@@ -31,7 +31,7 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class ScoreboardEstimator : public EntropyEstimator 
+    class PredictionEstimator : public EntropyEstimator 
     {
     protected:
         size_t countSamples = 0;

@@ -34,7 +34,7 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MultiMmcPredictionEstimator : public ScoreboardEstimator 
+    class MultiMmcPredictionEstimator : public PredictionEstimator 
     {
     private:
         std::vector<std::shared_ptr<MmcPredictor>> mmc;

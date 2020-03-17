@@ -31,12 +31,12 @@ using namespace randomness::sp800_90b::estimator;
 
 static constexpr std::array<size_t, 4> WindowSize = {63, 255, 1023, 4095};
 
-MultiMcwPredictionEstimator::MostCommonInWindow::MostCommonInWindow(size_t countAlphabets, size_t windowSize) :  mcv(-1), windowSize(windowSize)
+MultiMcwPredictionEstimator::McwPredictor::McwPredictor(size_t countAlphabets, size_t windowSize) :  mcv(-1), windowSize(windowSize)
 {
     count = std::vector<size_t>(countAlphabets, 0);
 }
 
-void MultiMcwPredictionEstimator::MostCommonInWindow::Add(uint8_t value)
+void MultiMcwPredictionEstimator::McwPredictor::Add(uint8_t value)
 {
     count[value] += 1;
     window.push_back(value);
@@ -47,7 +47,7 @@ void MultiMcwPredictionEstimator::MostCommonInWindow::Add(uint8_t value)
     }
 }
 
-int16_t MultiMcwPredictionEstimator::MostCommonInWindow::Frequent() const
+int16_t MultiMcwPredictionEstimator::McwPredictor::Frequent() const
 {
     if (window.size() < windowSize) {
         return -1;
@@ -71,17 +71,12 @@ void MultiMcwPredictionEstimator::Initialize()
     startPredictionIndex = WindowSize[0];
     countPredictions = countSamples - startPredictionIndex;
 
-    winner = 0;
-    countCorrects = 0;
-    correctRuns = 0;
-    maxCorrectRuns = 0;
-    
     prediction.assign(4, -1);
     scoreboard.assign(4, 0);
 
     mcw.clear();
     for (auto i = 0; i < 4; ++i) {
-        mcw.push_back(MostCommonInWindow(countAlphabets, WindowSize[i]));
+        mcw.push_back(McwPredictor(countAlphabets, WindowSize[i]));
     }
 
     for (auto i = 0; i < WindowSize[0]; ++i) {

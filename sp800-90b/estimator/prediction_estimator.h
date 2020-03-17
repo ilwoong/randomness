@@ -35,15 +35,15 @@ namespace randomness { namespace sp800_90b { namespace estimator {
         size_t maxCorrectRuns;
         size_t countCorrects;
         size_t countPredictions;
-    } correct_info_t;
+    } prediction_summary_t;
 
-    class PredictionEstimator 
+    class PredictionEvaluator
     {
     private:
-        correct_info_t info;
+        prediction_summary_t summary;
 
     public:
-        double Estimate(correct_info_t info);
+        double Estimate(prediction_summary_t summary);
 
     private:
         double CalculateLocal();

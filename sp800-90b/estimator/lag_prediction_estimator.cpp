@@ -40,11 +40,6 @@ void LagPredictionEstimator::Initialize()
     startPredictionIndex = 1;
     countPredictions = countSamples - startPredictionIndex;
     
-    winner = 0;
-    countCorrects = 0;
-    correctRuns = 0;
-    maxCorrectRuns = 0;
-
     prediction.assign(MaxLagSize, -1);
     scoreboard.assign(MaxLagSize, 0);
 }

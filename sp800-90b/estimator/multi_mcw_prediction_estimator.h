@@ -32,10 +32,10 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class MultiMcwPredictionEstimator : public ScoreboardEstimator 
+    class MultiMcwPredictionEstimator : public PredictionEstimator 
     {
     public:
-        class MostCommonInWindow {
+        class McwPredictor {
         private:
             int16_t mcv;
             size_t windowSize;
@@ -43,15 +43,15 @@ namespace randomness { namespace sp800_90b { namespace estimator {
             std::vector<size_t> count;
 
         public:
-            MostCommonInWindow() = default;
-            MostCommonInWindow(size_t countAlphabets, size_t windowSize);
+            McwPredictor() = default;
+            McwPredictor(size_t countAlphabets, size_t windowSize);
 
             void Add(uint8_t value);
             int16_t Frequent() const;
         };
 
     private:
-        std::vector<MostCommonInWindow> mcw;
+        std::vector<McwPredictor> mcw;
 
     public:
         std::string Name() const override;

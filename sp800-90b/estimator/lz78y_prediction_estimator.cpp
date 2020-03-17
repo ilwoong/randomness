@@ -34,45 +34,21 @@ std::string Lz78yPredictionEstimator::Name() const
     return "LZ78Y Prediction Estimate";
 }
 
-double Lz78yPredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
-{
-    sample = data;
-    countSamples = len;
-    countAlphabets = alph_size;
-
-    Initialize();
-
-    for (auto i = startPredictionIndex; i < countSamples; ++i) {
-        UpdatePredictions(i);
-        CountCorrectPredictions(i);
-    }
-
-    if (maxCorrectRuns < correctRuns) {
-        maxCorrectRuns = correctRuns;
-    }
-
-    logstream << "countCorrects=" << countCorrects << ", max_run=" << maxCorrectRuns;
-
-    correct_info_t info = {countAlphabets, maxCorrectRuns, countCorrects, countPredictions};
-    PredictionEstimator pe;
-    return pe.Estimate(info);
-}
-
-
 void Lz78yPredictionEstimator::Initialize()
 {
     entries = 0;
-    countCorrects = 0;
-    countPredictions = countSamples - 16 - 1;
-    correctRuns = 0;
-    maxCorrectRuns = 0;
     startPredictionIndex = 17;
+    countPredictions = countSamples - 16 - 1;
+
+    prediction.assign(1, -1);
+    scoreboard.clear();
 
     dictionary.clear();
     for (auto i = 0; i < 16; ++i) {
         if (countAlphabets == 2) {
             dictionary.push_back(std::make_shared<Lz78yPredictorBinary>());
-        } else {
+        } 
+        else {
             dictionary.push_back(std::make_shared<Lz78yPredictorLiteral>());
         }
         
@@ -83,25 +59,18 @@ void Lz78yPredictionEstimator::Initialize()
 
 void Lz78yPredictionEstimator::UpdatePredictions(size_t idx)
 {
-    prediction = -1;
+    prediction[0] = -1;
     auto max = 0;
 
-    for (auto i = 0; i < 16; ++i) {
+    for (auto i = 15; i >= 0; --i) {
         auto result = dictionary[i]->Predict(sample[idx]);
 
-        if (result.MostCommonValue() == -1) {
-            for (auto j = i; j < 16; ++j) {
-                if (entries < MaxEntries) {
-                    dictionary[j]->CreateEntry(sample[idx]);
-                    entries += 1;
-                }       
+        if (result.MostCommonValue() != -1) {
+            if ((max < result.MostCommonCounter()) || ((max == result.MostCommonCounter()) && (prediction[0] < result.MostCommonValue()))) {
+                prediction[0] = result.MostCommonValue();
+                max = result.MostCommonCounter();
             }
-            break;
-        }        
-        else if (max < result.MostCommonCounter()) {
-            prediction = result.MostCommonValue();
-            max = result.MostCommonCounter();
-        } 
+        }
         else if (entries < MaxEntries) {
             dictionary[i]->CreateEntry(sample[idx]);
             entries += 1;
@@ -110,19 +79,5 @@ void Lz78yPredictionEstimator::UpdatePredictions(size_t idx)
 
     for (auto i = 0; i < 16; ++i) {
         dictionary[i]->UpdateTrace(sample[idx]);
-    }
-}
-
-void Lz78yPredictionEstimator::CountCorrectPredictions(size_t idx)
-{
-    if (prediction == sample[idx]) {
-        countCorrects += 1;
-        correctRuns += 1;
-    } 
-    else {
-        if (maxCorrectRuns < correctRuns) {
-            maxCorrectRuns = correctRuns;
-        }
-        correctRuns = 0;
     }
 }

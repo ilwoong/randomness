@@ -49,6 +49,11 @@ static bool IsOutClosedInterval(double value, double itv1, double itv2)
     return (value < low) || (value > high);
 }
 
+BinarySearch::BinarySearch(std::function<double(double, double)> func)
+{
+    SetFunction(func);
+}
+
 void BinarySearch::SetFunction(std::function<double(double, double)> func) 
 {
     evaluate = func;

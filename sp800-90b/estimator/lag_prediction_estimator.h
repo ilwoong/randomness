@@ -31,7 +31,7 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    class LagPredictionEstimator : public ScoreboardEstimator 
+    class LagPredictionEstimator : public PredictionEstimator 
     {
     public:
         std::string Name() const override;

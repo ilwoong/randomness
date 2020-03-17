@@ -44,9 +44,8 @@ double CollisionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph
     }
 
     auto func = std::bind(&CollisionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
-    BinarySearch search;
-    search.SetFunction(func);
-
+    BinarySearch search(func);
+    
     auto lower_bound_mean = FromBinaryCollisions(data, len);    
     auto prob = 0.0;
     try {
