@@ -29,55 +29,70 @@
 
 #include "binary_search.h"
 #include "boundary.h"
+#include "prediction_evaluator.h"
 
 using namespace randomness::sp800_90b::estimator;
 
 static const double LogAlpha = log(0.99);
 
-double PredictionEvaluator::Estimate(prediction_summary_t summary)
+double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
 {
-    this->summary = summary;
+    sample = data;
+    countSamples = len;
+    countAlphabets = alph_size;
 
-    auto p = 1.0 / summary.countAlphabets;
-    auto p_local = CalculateLocal();
-    auto p_global = CalculateGlobal();
-    auto max = std::max(p, p_global);
-    max = std::max(max, p_local);
+    winner = 0;
+    countCorrects = 0;
+    correctRuns = 0;
+    maxCorrectRuns = 0;
+    
+    MakePredictions();
 
-    return -log2(max);
+    prediction_summary_t summary = {countAlphabets, maxCorrectRuns, countCorrects, countPredictions};
+    PredictionEvaluator pe;
+    return pe.Estimate(summary);
 }
 
-double PredictionEvaluator::CalculateLocal() 
+void PredictionEstimator::MakePredictions()
 {
-    auto func = std::bind(&PredictionEvaluator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
-    BinarySearch search;
-    search.SetFunction(func);
+    Initialize();
 
-    auto p_local = 1.0;
-    try {
-        p_local = search.FindSolution(LogAlpha, 0.0, 1.0, summary.maxCorrectRuns + 1);
-        
-    } catch (std::exception e) {
-        p_local = 1.0;
+    for (size_t i = startPredictionIndex; i < countSamples; ++i) {
+        UpdatePredictions(i);
+        CountCorrectPredictions(i);
+        UpdateScoreBoard(i);
     }
 
-    return p_local;
-}
-
-double PredictionEvaluator::CalculateGlobal()
-{
-    auto p_global = static_cast<double>(summary.countCorrects) / static_cast<double>(summary.countPredictions);
-    return UpperBoundProbability(p_global, summary.countPredictions);
-}
-
-double PredictionEvaluator::EvaluateBinarySearch(double p, double r) const
-{
-    auto q = 1.0 - p;
-    auto x = 1.0;
-
-    for (auto i = 0; i < 10; ++i) {
-        x = 1.0 + q * powl(p, r) * powl(x, r + 1.0);
+    if (maxCorrectRuns < correctRuns) {
+        maxCorrectRuns = correctRuns;
     }
 
-    return logl(1.0 - p * x) - logl((r + 1 - r * x) * q) - (summary.countPredictions + 1.0) * logl(x);
+    logstream << "countCorrects=" << countCorrects << ", max_run=" << maxCorrectRuns;
+}
+
+void PredictionEstimator::CountCorrectPredictions(size_t idx)
+{
+    if (prediction[winner] == sample[idx]) {
+        correctRuns += 1;
+        countCorrects += 1;
+
+    } else {
+        if (maxCorrectRuns < correctRuns) {
+            maxCorrectRuns = correctRuns;
+        }
+        correctRuns = 0;
+    }
+}
+
+void PredictionEstimator::UpdateScoreBoard(size_t idx) 
+{
+    for (auto i = 0; i < scoreboard.size(); ++i) {
+        if (prediction[i] == sample[idx]) {
+            scoreboard[i] += 1;
+
+            if (scoreboard[i] >= scoreboard[winner]) {
+                winner = i;
+            }
+        }
+    }
 }

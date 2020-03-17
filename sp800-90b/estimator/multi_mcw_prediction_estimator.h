@@ -25,7 +25,7 @@
 #ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MCW_H__
 #define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_MULTI_MCW_H__
 
-#include "scoreboard_estimator.h"
+#include "prediction_estimator.h"
 
 #include <array>
 #include <vector>

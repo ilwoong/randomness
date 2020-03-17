@@ -22,33 +22,42 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
-#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_H__
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_ESTIMATOR_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_PREDICTION_ESTIMATOR_H__
 
-#include <cstddef>
-#include <sstream>
+#include "entropy_estimator.h"
+
+#include <vector>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
-    typedef struct {
-        size_t countAlphabets;
-        size_t maxCorrectRuns;
-        size_t countCorrects;
-        size_t countPredictions;
-    } prediction_summary_t;
-
-    class PredictionEvaluator
+    class PredictionEstimator : public EntropyEstimator 
     {
-    private:
-        prediction_summary_t summary;
+    protected:
+        size_t countSamples = 0;
+        size_t countAlphabets = 0;
+        size_t countPredictions = 0;
+        size_t winner = 0;
+        size_t correctRuns = 0;
+        size_t countCorrects = 0;
+        size_t maxCorrectRuns = 0;
+        size_t startPredictionIndex = 0;
+
+        const uint8_t* sample;
+        std::vector<int16_t> prediction;
+        std::vector<size_t> scoreboard;
 
     public:
-        double Estimate(prediction_summary_t summary);
+        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
+
+    protected:
+        virtual void Initialize() = 0;
+        virtual void UpdatePredictions(size_t idx) = 0;
 
     private:
-        double CalculateLocal();
-        double CalculateGlobal();
-        double EvaluateBinarySearch(double arg1, double arg2) const;
+        void MakePredictions();
+        void CountCorrectPredictions(size_t idx);
+        void UpdateScoreBoard(size_t idx);
     };
 }}}
 
