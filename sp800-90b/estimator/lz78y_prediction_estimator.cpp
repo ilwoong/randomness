@@ -62,22 +62,29 @@ void Lz78yPredictionEstimator::UpdatePredictions(size_t idx)
     prediction[0] = -1;
     auto max = 0;
 
-    for (auto i = 15; i >= 0; --i) {
+    for (auto i = 0; i < 16; ++i) {
         auto result = dictionary[i]->Predict(sample[idx]);
+        auto mcv = result.MostCommonValue();
+        auto mcc = result.MostCommonCounter();
 
-        if (result.MostCommonValue() != -1) {
-            if ((max < result.MostCommonCounter()) || ((max == result.MostCommonCounter()) && (prediction[0] < result.MostCommonValue()))) {
-                prediction[0] = result.MostCommonValue();
-                max = result.MostCommonCounter();
+        if (mcv != -1) {
+            if ((max < mcc) || ((max == mcc) && (prediction[0] < mcv))) {
+                prediction[0] = mcv;
+                max = mcc;
             }
         }
-        else if (entries < MaxEntries) {
-            dictionary[i]->CreateEntry(sample[idx]);
-            entries += 1;
+        else {
+            for (auto j = i; j < 16; ++j) {
+                if (entries < MaxEntries) {
+                    dictionary[j]->CreateEntry(sample[idx]);
+                    entries += 1;
+                }
+            }
+            break;
         }
     }
 
-    for (auto i = 0; i < 16; ++i) {
-        dictionary[i]->UpdateTrace(sample[idx]);
+    for (auto dict : dictionary) {
+        dict->UpdateTrace(sample[idx]);
     }
 }
