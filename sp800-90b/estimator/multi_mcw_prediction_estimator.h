@@ -28,30 +28,17 @@
 #include "prediction_estimator.h"
 
 #include <array>
+#include <memory>
 #include <vector>
+
+#include "mcw_predictor.h"
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
     class MultiMcwPredictionEstimator : public PredictionEstimator 
     {
-    public:
-        class McwPredictor {
-        private:
-            int16_t mcv;
-            size_t windowSize;
-            std::vector<uint8_t> window;
-            std::vector<size_t> count;
-
-        public:
-            McwPredictor() = default;
-            McwPredictor(size_t countAlphabets, size_t windowSize);
-
-            void Add(uint8_t value);
-            int16_t Frequent() const;
-        };
-
     private:
-        std::vector<McwPredictor> mcw;
+        std::vector<std::shared_ptr<McwPredictor>> mcw;
 
     public:
         std::string Name() const override;

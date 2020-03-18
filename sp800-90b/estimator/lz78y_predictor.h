@@ -37,7 +37,7 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     class Lz78yPredictor {
     public:
         virtual void Initialize(const uint8_t* sample, size_t order) = 0;
-        virtual McvTracker Predict(uint8_t sample) = 0;
+        virtual mcv_info_t Predict(uint8_t sample) = 0;
         virtual void CreateEntry(uint8_t sample) = 0;
         virtual void UpdateTrace(uint8_t sample) = 0;
     };
@@ -45,7 +45,7 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     class Lz78yPredictorBinary : public Lz78yPredictor 
     {
     using trace_t = uint16_t;
-    using dict_t = std::vector<McvTracker>;
+    using dict_t = std::vector<size_t>;
 
     private:
         trace_t mask;
@@ -54,12 +54,11 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     public:
         void Initialize(const uint8_t* sample, size_t order) override;
-        McvTracker Predict(uint8_t sample) override;
+        mcv_info_t Predict(uint8_t sample) override;
         void CreateEntry(uint8_t sample) override;
         void UpdateTrace(uint8_t sample) override;
     };
 
-    // TODO:: countCorrect mismatch should be fixed
     class Lz78yPredictorLiteral : public Lz78yPredictor 
     {
     using trace_t = std::vector<uint8_t>;
@@ -71,7 +70,7 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     public:
         void Initialize(const uint8_t* sample, size_t order) override;
-        McvTracker Predict(uint8_t sample) override;
+        mcv_info_t Predict(uint8_t sample) override;
         void CreateEntry(uint8_t sample) override;
         void UpdateTrace(uint8_t sample) override;
     };

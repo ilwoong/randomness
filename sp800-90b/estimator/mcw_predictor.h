@@ -22,49 +22,53 @@
  * THE SOFTWARE.
  */
 
-#include "multi_mcw_prediction_estimator.h"
+#ifndef __RANDOMNESS_SP800_90B_ESTIMATOR_MCW_PREDICTOR_H__
+#define __RANDOMNESS_SP800_90B_ESTIMATOR_MCW_PREDICTOR_H__
 
-#include <algorithm>
+#include <array>
+#include <cstdint>
 #include <vector>
 
-using namespace randomness::sp800_90b::estimator;
+#include "mcv_tracker.h"
 
-static constexpr std::array<size_t, 4> WindowSize = {63, 255, 1023, 4095};
+namespace randomness { namespace sp800_90b { namespace estimator {
 
-std::string MultiMcwPredictionEstimator::Name() const
-{
-    return "MultiMCW Prediction Estimate";
-}
+    class McwPredictor {
+    protected:
+        size_t windowSize;
+        std::vector<uint8_t> window;
 
-void MultiMcwPredictionEstimator::Initialize()
-{
-    startPredictionIndex = WindowSize[0];
-    countPredictions = countSamples - startPredictionIndex;
+    public:
+        virtual int16_t Predict() = 0;
+        virtual void PushBack(uint8_t sample) = 0;
+    };
 
-    prediction.assign(4, -1);
-    scoreboard.assign(4, 0);
+    class McwPredictorBinary : public McwPredictor 
+    {
+    private:
+        std::array<size_t, 2> count;
 
-    mcw.clear();
-    for (auto i = 0; i < 4; ++i) {
-        if (countAlphabets == 2) {
-            mcw.push_back(std::make_shared<McwPredictorBinary>(WindowSize[i]));
-        }
-        else {
-            mcw.push_back(std::make_shared<McwPredictorLiteral>(WindowSize[i]));
-        }
-    }
+    public:
+        McwPredictorBinary(size_t windowSize);
+        int16_t Predict() override;
+        void PushBack(uint8_t sample) override;
+    };
+    
+    class McwPredictorLiteral : public McwPredictor 
+    {
+    private:
+        int16_t mcv;
+        size_t maxCount;
+        std::array<size_t, 256> count;
 
-    for (auto i = 0; i < WindowSize[0]; ++i) {
-        for (auto& window : mcw) {
-            window->PushBack(sample[i]);
-        }
-    }
-}
+    public:
+        McwPredictorLiteral(size_t windowSize);
+        int16_t Predict() override;
+        void PushBack(uint8_t sample) override;
 
-void MultiMcwPredictionEstimator::UpdatePredictions(size_t idx)
-{
-    for (auto j = 0; j < 4; ++j) {
-        prediction[j] = mcw[j]->Predict();
-        mcw[j]->PushBack(sample[idx]);
-    }
-}
+    private:
+        void InvalidateMostCommonValue();
+    };
+}}}
+
+#endif

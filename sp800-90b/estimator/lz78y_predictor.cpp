@@ -26,34 +26,52 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+static constexpr size_t WindowSize = 16;
+
 void Lz78yPredictorBinary::Initialize(const uint8_t* sample, size_t order)
 {
     mask = 0;
     trace = 0;
-    for (auto i = order; i < 16; ++i) {
+    for (auto i = order; i < WindowSize; ++i) {
         mask = (mask << 1) ^ 0x1;
         trace = (trace << 1) ^ sample[i];
     }
-    
-    dictionary.resize(1 << (16 - order));
-    dictionary[trace].Create(sample[16]);
 
-    UpdateTrace(sample[16]);
+    dictionary.assign(1 << (WindowSize - order + 1), 0);
+    
+    CreateEntry(sample[WindowSize]);
+    UpdateTrace(sample[WindowSize]);
 }
 
-McvTracker Lz78yPredictorBinary::Predict(uint8_t sample)
+mcv_info_t Lz78yPredictorBinary::Predict(uint8_t sample)
 {
-    McvTracker prediction = dictionary[trace];
-    if (prediction.MostCommonValue() != -1) {
-        dictionary[trace].Update(sample);
+    size_t idx0 = (static_cast<size_t>(trace) << 1);
+    size_t idx1 = idx0 ^ 0x1;
+
+    mcv_info_t mcv;
+    if (dictionary[idx0] > dictionary[idx1]) {
+        mcv.key = 0;
+        mcv.count = dictionary[idx0];
+    }
+    else {
+        mcv.key = 1;
+        mcv.count = dictionary[idx1];
     }
 
-    return prediction;
+    if (mcv.count > 0) {
+        dictionary[idx0 ^ sample] += 1;
+    } 
+    else {
+        mcv.key = -1;
+    }
+
+    return mcv;
 }
 
 void Lz78yPredictorBinary::CreateEntry(uint8_t sample)
 {
-    dictionary[trace].Update(sample);
+    size_t idx = (static_cast<size_t>(trace) << 1) ^ sample;
+    dictionary[idx] = 1;
 }
 
 void Lz78yPredictorBinary::UpdateTrace(uint8_t sample)
@@ -64,32 +82,29 @@ void Lz78yPredictorBinary::UpdateTrace(uint8_t sample)
 
 void Lz78yPredictorLiteral::Initialize(const uint8_t* sample, size_t order)
 {
-    trace.clear();
-    for (auto i = order; i < 16; ++i) {
-        trace.push_back(sample[i]);
-    }
-    dictionary[trace] = McvTracker();
-    dictionary[trace].Create(sample[16]);
+    trace.assign(sample + order, sample + WindowSize);
 
-    UpdateTrace(sample[16]);
+    CreateEntry(sample[WindowSize]);
+    UpdateTrace(sample[WindowSize]);
 }
 
-McvTracker Lz78yPredictorLiteral::Predict(uint8_t sample)
+mcv_info_t Lz78yPredictorLiteral::Predict(uint8_t sample)
 {
     McvTracker prediction;
+    
     auto iter = dictionary.find(trace);
     if (iter != dictionary.end()) {
         prediction = iter->second;
         iter->second.Update(sample);
     }
 
-    return prediction;
+    return prediction.MostCommonValue();
 }
 
 void Lz78yPredictorLiteral::CreateEntry(uint8_t sample)
 {
     dictionary[trace] = McvTracker();
-    dictionary[trace].Update(sample);
+    dictionary[trace].Create(sample);
 }
 
 void Lz78yPredictorLiteral::UpdateTrace(uint8_t sample)

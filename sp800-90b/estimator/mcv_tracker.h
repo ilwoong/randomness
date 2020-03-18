@@ -30,37 +30,46 @@
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
+    typedef struct {
+        int16_t key = -1;
+        size_t count = 0;
+    } mcv_info_t;
+
     class McvTracker {
     private:
-        int16_t mcv = -1;
-        size_t max_ctr = 0;
+        mcv_info_t mcv;
         std::array<size_t, 256> counter = { 0, };
 
     public:
         void Create(uint8_t feed)
         {
             counter[feed] = 1;
-            mcv = feed;
-            max_ctr = 1;
+            mcv.key = feed;
+            mcv.count = 1;
         }
 
         void Update(uint8_t feed) 
         {
             counter[feed] += 1;
-            if ((max_ctr < counter[feed]) || (max_ctr == counter[feed]) && (feed > mcv)) {
-                max_ctr = counter[feed];
-                mcv = feed;
+            if ((mcv.count < counter[feed]) || (mcv.count == counter[feed]) && (feed > mcv.key)) {
+                mcv.key = feed;
+                mcv.count = counter[feed];
             }
         }
 
-        int16_t MostCommonValue() const 
+        mcv_info_t MostCommonValue() const
         {
             return mcv;
         }
 
-        size_t MostCommonCounter() const
+        int16_t MostCommonKey() const 
         {
-            return max_ctr;
+            return mcv.key;
+        }
+
+        size_t MostCommonCount() const
+        {
+            return mcv.count;
         }
     };
 }}}

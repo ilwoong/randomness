@@ -47,8 +47,26 @@ void MmcPredictorBinary::Initialize(const uint8_t* sample, size_t order)
         trace = (trace << 1) ^ sample[d];
     }
 
-    chain.resize(1 << order);
+    chain.resize(1 << (order + 1));
     CreateEntry(sample[order]);
+}
+
+
+int16_t MmcPredictorBinary::Predict(uint8_t sample)
+{
+    size_t idx = static_cast<size_t>(trace) << 1;
+    int16_t prediction = (chain[idx] > chain[idx ^ 1]) ? 0 : 1;
+
+    if (chain[idx ^ prediction] == 0) {
+        prediction = -1;
+        CreateEntry(sample);
+    } 
+    else {
+        chain[idx ^ sample] += 1;
+        UpdateTrace(sample);
+    }
+
+    return prediction;
 }
 
 void MmcPredictorBinary::CreateEntry(uint8_t sample)
@@ -57,25 +75,12 @@ void MmcPredictorBinary::CreateEntry(uint8_t sample)
         return;
     }
 
-    chain[trace].Create(sample);
+    size_t idx = static_cast<size_t>(trace) << 1;
+
+    chain[idx ^ sample] = 1;
     entries += 1;
 
     UpdateTrace(sample);
-}
-
-int16_t MmcPredictorBinary::Predict(uint8_t sample)
-{
-    int16_t prediction = chain[trace].MostCommonValue();
-
-    if (prediction != -1) {
-        chain[trace].Update(sample);
-        UpdateTrace(sample);
-    } 
-    else {
-        CreateEntry(sample);
-    }
-
-    return prediction;
 }
 
 void MmcPredictorBinary::UpdateTrace(uint8_t sample)
@@ -94,6 +99,23 @@ void MmcPredictorLiteral::Initialize(const uint8_t* sample, size_t order)
     CreateEntry(sample[order]);
 }
 
+int16_t MmcPredictorLiteral::Predict(uint8_t sample)
+{
+    int16_t prediction = -1;
+
+    auto iter = chain.find(trace);
+    if (iter != chain.end()) {
+        prediction = iter->second.MostCommonKey();
+        iter->second.Update(sample);
+        UpdateTrace(sample);
+    }
+    else {
+        CreateEntry(sample);
+    }
+
+    return prediction;
+}
+
 void MmcPredictorLiteral::CreateEntry(uint8_t sample)
 {
     if (entries >= MaxEntries) {
@@ -105,23 +127,6 @@ void MmcPredictorLiteral::CreateEntry(uint8_t sample)
     entries += 1;
 
     UpdateTrace(sample);
-}
-
-int16_t MmcPredictorLiteral::Predict(uint8_t sample)
-{
-    int16_t prediction = -1;
-
-    auto iter = chain.find(trace);
-    if (iter != chain.end()) {
-        prediction = iter->second.MostCommonValue();
-        iter->second.Update(sample);
-        UpdateTrace(sample);
-    } 
-    else {
-        CreateEntry(sample);
-    }
-
-    return prediction;
 }
 
 void MmcPredictorLiteral::UpdateTrace(uint8_t sample)

@@ -40,17 +40,17 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     public:
         virtual void Initialize(const uint8_t* sample, size_t order);
-        virtual void CreateEntry(uint8_t sample) = 0;
         virtual int16_t Predict(uint8_t sample) = 0;
+        virtual void CreateEntry(uint8_t sample) = 0;
 
-    protected:
+    private:
         virtual void UpdateTrace(uint8_t sample) = 0;
     };
 
     class MmcPredictorBinary : public MmcPredictor 
     {
     using trace_t = uint16_t;
-    using chain_t = std::vector<McvTracker>;
+    using chain_t = std::vector<size_t>;
 
     private:
         trace_t mask;
@@ -59,9 +59,9 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     public:
         void Initialize(const uint8_t* sample, size_t order) override;
-        void CreateEntry(uint8_t sample) override;
         int16_t Predict(uint8_t sample) override;
-
+        void CreateEntry(uint8_t sample) override;
+    
     private:
         void UpdateTrace(uint8_t sample) override;
     };
@@ -77,9 +77,9 @@ namespace randomness { namespace sp800_90b { namespace estimator {
 
     public:
         void Initialize(const uint8_t* sample, size_t order) override;
-        void CreateEntry(uint8_t sample) override;
         int16_t Predict(uint8_t sample) override;
-    
+        void CreateEntry(uint8_t sample) override;
+        
     private:
         void UpdateTrace(uint8_t sample) override;
     };

@@ -27,6 +27,7 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+static constexpr size_t WindowSize = 16;
 static constexpr size_t MaxEntries = 65536;
 
 std::string Lz78yPredictionEstimator::Name() const
@@ -37,14 +38,14 @@ std::string Lz78yPredictionEstimator::Name() const
 void Lz78yPredictionEstimator::Initialize()
 {
     entries = 0;
-    startPredictionIndex = 17;
-    countPredictions = countSamples - 16 - 1;
+    startPredictionIndex = WindowSize + 1;
+    countPredictions = countSamples - WindowSize - 1;
 
     prediction.assign(1, -1);
     scoreboard.clear();
 
     dictionary.clear();
-    for (auto i = 0; i < 16; ++i) {
+    for (auto i = 0; i < WindowSize; ++i) {
         if (countAlphabets == 2) {
             dictionary.push_back(std::make_shared<Lz78yPredictorBinary>());
         } 
@@ -52,9 +53,9 @@ void Lz78yPredictionEstimator::Initialize()
             dictionary.push_back(std::make_shared<Lz78yPredictorLiteral>());
         }
         
-        dictionary[i]->Initialize(sample, 15 - i);
+        dictionary[i]->Initialize(sample, WindowSize - 1 - i);
     }
-    entries += 16;
+    entries += WindowSize;
 }
 
 void Lz78yPredictionEstimator::UpdatePredictions(size_t idx)
@@ -62,19 +63,17 @@ void Lz78yPredictionEstimator::UpdatePredictions(size_t idx)
     prediction[0] = -1;
     auto max = 0;
 
-    for (auto i = 0; i < 16; ++i) {
-        auto result = dictionary[i]->Predict(sample[idx]);
-        auto mcv = result.MostCommonValue();
-        auto mcc = result.MostCommonCounter();
+    for (auto i = 0; i < WindowSize; ++i) {
+        auto mcv = dictionary[i]->Predict(sample[idx]);
 
-        if (mcv != -1) {
-            if ((max < mcc) || ((max == mcc) && (prediction[0] < mcv))) {
-                prediction[0] = mcv;
-                max = mcc;
+        if (mcv.key != -1) {
+            if ((max < mcv.count) || ((max == mcv.count) && (prediction[0] < mcv.key))) {
+                prediction[0] = mcv.key;
+                max = mcv.count;
             }
         }
         else {
-            for (auto j = i; j < 16; ++j) {
+            for (auto j = i; j < WindowSize; ++j) {
                 if (entries < MaxEntries) {
                     dictionary[j]->CreateEntry(sample[idx]);
                     entries += 1;
