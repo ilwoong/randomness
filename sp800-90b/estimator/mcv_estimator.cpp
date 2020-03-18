@@ -37,18 +37,18 @@ std::string McvEstimator::Name() const
     return "Most Common Value Estimate";
 }
 
-double McvEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
+double McvEstimator::Estimate()
 {
-    std::vector<size_t> counts(alph_size, 0);
+    std::vector<size_t> counts(countAlphabets, 0);
 
-    for (auto i = 0; i < len; ++i) {
-        counts[data[i]] += 1;
+    for (auto i = 0; i < countSamples; ++i) {
+        counts[sample[i]] += 1;
     }
 
     auto max = *std::max_element(counts.begin(), counts.end());
-    auto pmax = static_cast<double>(max) / len;
+    auto pmax = static_cast<double>(max) / countSamples;
 
     logstream << "max=" << max << ", pmax=" << pmax;
 
-    return -log2(UpperBoundProbability(pmax, len));
+    return -log2(UpperBoundProbability(pmax, countSamples));
 }

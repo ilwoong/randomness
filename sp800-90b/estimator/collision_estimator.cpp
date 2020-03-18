@@ -37,16 +37,16 @@ std::string CollisionEstimator::Name() const
     return "Collision Estimate";
 }
 
-double CollisionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
+double CollisionEstimator::Estimate()
 {
-    if (alph_size != 2) {
+    if (countAlphabets != 2) {
         throw std::invalid_argument("only applicable to binary data");
     }
 
     auto func = std::bind(&CollisionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
     BinarySearch search(func);
     
-    auto lower_bound_mean = FromBinaryCollisions(data, len);    
+    auto lower_bound_mean = FromBinaryCollisions();    
     auto prob = 0.0;
     try {
         prob = search.FindSolution(lower_bound_mean, 0.5, 1.0);
@@ -60,7 +60,7 @@ double CollisionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph
     return -log2(prob);
 }
 
-double CollisionEstimator::FromBinaryCollisions(const uint8_t* data, size_t len)
+double CollisionEstimator::FromBinaryCollisions()
 {
     auto count_collisions = 0;
 
@@ -68,11 +68,11 @@ double CollisionEstimator::FromBinaryCollisions(const uint8_t* data, size_t len)
     size_t offset_to_first_collision = 0;
     size_t squared_sum = 0;
     
-    while (index < len - 1) {
-        if (data[index] == data[index + 1]) {
+    while (index < countSamples - 1) {
+        if (sample[index] == sample[index + 1]) {
             offset_to_first_collision = 2;
             
-        } else if (index < len - 2) {
+        } else if (index < countSamples - 2) {
             offset_to_first_collision = 3;
 
         } else {

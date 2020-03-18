@@ -34,21 +34,18 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     class PredictionEstimator : public EntropyEstimator 
     {
     protected:
-        size_t countSamples = 0;
-        size_t countAlphabets = 0;
         size_t countPredictions = 0;
         size_t winner = 0;
         size_t correctRuns = 0;
         size_t countCorrects = 0;
         size_t maxCorrectRuns = 0;
         size_t startPredictionIndex = 0;
-
-        const uint8_t* sample;
+        
         std::vector<int16_t> prediction;
         std::vector<size_t> scoreboard;
 
     public:
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
+        double Estimate() override;
 
     protected:
         virtual void Initialize() = 0;

@@ -34,12 +34,18 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     class EntropyEstimator 
     {
     protected:
+        const uint8_t* sample;
+        size_t countSamples;
+        size_t countAlphabets;
         std::ostringstream logstream;
 
     public:
         virtual std::string Name() const = 0;
-        virtual double Estimate(const uint8_t* data, size_t len, size_t count_alphabets) = 0;
+        double Estimate(const uint8_t* data, size_t len, size_t count_alphabets);
         std::string Log() const;
+
+    protected:
+        virtual double Estimate() = 0;
     };
 }}}
 

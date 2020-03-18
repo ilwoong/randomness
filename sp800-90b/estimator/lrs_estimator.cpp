@@ -35,9 +35,9 @@ std::string LrsEstimator::Name() const
     return "LRS Estimate";
 }
 
-double LrsEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
+double LrsEstimator::Estimate()
 {    
-    auto lcp = LcpArray::Create(data, len);
+    auto lcp = LcpArray::Create(sample, countSamples);
     return Estimate(lcp);
 }
 

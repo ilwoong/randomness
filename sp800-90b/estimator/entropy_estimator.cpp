@@ -29,6 +29,15 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+double EntropyEstimator::Estimate(const uint8_t* data, size_t len, size_t count_alphabets)
+{
+    sample = data;
+    countSamples = len;
+    countAlphabets = count_alphabets;
+
+    return Estimate();
+}
+
 std::string EntropyEstimator::Log() const
 {
     return logstream.str();

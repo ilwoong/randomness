@@ -38,7 +38,7 @@ namespace randomness { namespace sp800_90b { namespace estimator {
     {
     public:
         std::string Name() const override;
-        double Estimate(const uint8_t* data, size_t length, size_t count_alphabets) override;
+        double Estimate() override;
         virtual double Estimate(const LcpArray& lcp);
 
     protected:

@@ -35,12 +35,8 @@ using namespace randomness::sp800_90b::estimator;
 
 static const double LogAlpha = log(0.99);
 
-double PredictionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size) 
+double PredictionEstimator::Estimate() 
 {
-    sample = data;
-    countSamples = len;
-    countAlphabets = alph_size;
-
     winner = 0;
     countCorrects = 0;
     correctRuns = 0;

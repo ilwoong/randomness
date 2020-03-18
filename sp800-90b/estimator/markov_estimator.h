@@ -28,14 +28,23 @@
 #include "entropy_estimator.h"
 
 #include <array>
+#include <vector>
 
 namespace randomness { namespace sp800_90b { namespace estimator {
 
     class MarkovEstimator : public EntropyEstimator 
     {
+    private:
+        std::array<size_t, 5> counts;
+        std::array<double, 6> probs;
+
     public:
         std::string Name() const override;
-        double Estimate(const uint8_t* data, size_t len, size_t alph_size) override;
+        double Estimate() override;
+
+    private:
+        void CountPatterns();
+        void GenerateProbabilities();
     };
 }}}
 

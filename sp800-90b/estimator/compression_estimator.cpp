@@ -32,17 +32,27 @@
 
 using namespace randomness::sp800_90b::estimator;
 
+static size_t bitstring2index(const uint8_t* data, size_t offset, size_t length)
+{
+    size_t index = data[offset];
+    for (auto i = offset + 1; i < offset + length; ++i) {
+        index <<= 1;
+        index |= data[i];
+    }
+    return index;
+}
+
 std::string CompressionEstimator::Name() const
 {
     return "Compression Estimate";
 }
 
-double CompressionEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
+double CompressionEstimator::Estimate()
 {
     auto func = std::bind(&CompressionEstimator::EvaluateBinarySearch, this, std::placeholders::_1, std::placeholders::_2);
     BinarySearch search(func);
 
-    auto mean = Calculate(data, len);
+    auto mean = CalculateMean();
     auto entropy = 1.0;
     
     try {
@@ -57,31 +67,21 @@ double CompressionEstimator::Estimate(const uint8_t* data, size_t len, size_t al
     return entropy;
 }
 
-static size_t bitstring2index(const uint8_t* data, size_t offset, size_t length)
+double CompressionEstimator::CalculateMean()
 {
-    size_t index = data[offset];
-    for (auto i = offset + 1; i < offset + length; ++i) {
-        index <<= 1;
-        index |= data[i];
-    }
-    return index;
-}
-
-double CompressionEstimator::Calculate(const uint8_t* data, size_t len)
-{
-    countBlocks = len / blockLength;
+    countBlocks = countSamples / blockLength;
     countTestBlocks = countBlocks - countInitBlocks;
 
     auto dict = std::vector<size_t>(1 << blockLength, 0);
     for (size_t i = 0; i < countInitBlocks; ++i) {
-        auto index = bitstring2index(data, i * blockLength, blockLength);
+        auto index = bitstring2index(sample, i * blockLength, blockLength);
         dict[index] = i + 1;
     }
 
     auto sum = 0.0;
     auto squared_sum = 0.0;
     for (size_t i = countInitBlocks; i < countBlocks; ++i) {
-        auto index = bitstring2index(data, i * blockLength, blockLength);
+        auto index = bitstring2index(sample, i * blockLength, blockLength);
         auto log2D = log2((i + 1) - dict[index]);
 
         sum += log2D;

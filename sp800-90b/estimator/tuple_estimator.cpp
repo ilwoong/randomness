@@ -42,9 +42,9 @@ static inline size_t FindLargestT(const std::vector<size_t> Q, size_t max_lcp)
     return t;
 }
 
-double TupleEstimator::Estimate(const uint8_t* data, size_t len, size_t alph_size)
+double TupleEstimator::Estimate()
 {    
-    auto lcp = LcpArray::Create(data, len);
+    auto lcp = LcpArray::Create(sample, countSamples);
     return Estimate(lcp);
 }
 
