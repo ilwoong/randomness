@@ -22,20 +22,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
-#define __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
+#ifndef __RANDOMNESS_ALGORITHM_NUMERICAL_RECIPES_H__
+#define __RANDOMNESS_ALGORITHM_NUMERICAL_RECIPES_H__
 
-#include "statistical_test.h"
-
-namespace randomness { namespace sp800_22 {
+namespace randomness { namespace algorithm {
     
-    class MonobitTest : public StatisticalTest 
-    {
-    public:
-        const std::string Name() const override;
-        const std::string ShortName() const override;
-        std::vector<randomness_result_t> Evaluate(const Sample& sample) override;
-    };
+    double igamma(double x, double a);
+    double igammac(double x, double a);
+
 }}
 
 #endif

@@ -22,20 +22,43 @@
  * THE SOFTWARE.
  */
 
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 
 #include "../common/sample_reader.h"
-#include "../sp800-22/monobit_test.h"
+#include "../sp800-22/evaluators.h"
 
 using namespace randomness::common;
 using namespace randomness::sp800_22;
 
-std::vector<std::shared_ptr<StatisticalTest>> GetTests()
+static constexpr size_t TitleWidth = 20;
+
+std::vector<std::shared_ptr<StatisticalTest>> PopulateTests()
 {
     auto tests = std::vector<std::shared_ptr<StatisticalTest>>();
     tests.push_back(std::make_shared<MonobitTest>());
+    tests.push_back(std::make_shared<BlockFrequencyTest>());
+    tests.push_back(std::make_shared<RunsTest>());
 
     return tests;
+}
+
+static void PrintResultItem(std::vector<randomness_result_t> results, std::string log) 
+{
+    for (auto item : results) {
+        std::ostringstream oss;
+        oss << item.shortname;
+        if (item.param.length() > 0) {
+            oss << " ("<< item.param << ")";
+        }
+
+        std::cout << std::setw(TitleWidth) << std::fixed << std::right << oss.str();
+        std::cout << ": P-value = " << item.pvalue << std::endl;
+
+        std::cout << std::setw(TitleWidth) << std::fixed << std::right << oss.str();
+        std::cout << ": " << log << std::endl;
+    }
 }
 
 int main(int argc, const char** argv)
@@ -44,11 +67,10 @@ int main(int argc, const char** argv)
     reader.Open("./samples/random_1MB.bin");
     auto sample = reader.NextBits(1000000);
 
-    auto tests = GetTests();    
+    auto tests = PopulateTests();
     for (auto test : tests){
-        test->Run(*sample);
-        std::cout << test->Name() << ": " << test->PValues()[0] << std::endl;
-        std::cout << test->Name() << ": " << test->Log() << std::endl;
+        auto results = test->Evaluate(*sample);
+        PrintResultItem(results, test->Log());
     }
 
     reader.Close();

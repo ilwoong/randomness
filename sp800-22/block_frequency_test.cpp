@@ -22,36 +22,48 @@
  * THE SOFTWARE.
  */
 
-#include "monobit_test.h"
+#include "block_frequency_test.h"
 
+#include "../algorithm/numerical_recipes.h"
 #include "../common/hamming_weight.h"
 
+using namespace randomness::algorithm;
 using namespace randomness::sp800_22;
-using namespace randomness::common;
 
-static const double SQRT2 = sqrt(2);
-
-const std::string MonobitTest::Name() const
+const std::string BlockFrequencyTest::Name() const
 {
-    return "Monobit test";
+    return "Frequency test within a block";
 }
 
-const std::string MonobitTest::ShortName() const
+const std::string BlockFrequencyTest::ShortName() const
 {
-    return "Monobit";
+    return "Blk.Freq.";
 }
 
-std::vector<randomness_result_t> MonobitTest::Evaluate(const Sample& sample)
+static double CalculateStatistic(const Sample& sample, size_t blockLength, size_t countBlocks)
 {
-    auto length = sample.BinaryData().size();
-    auto hw = HammingWeight(sample);
-    auto sobs = (2 * hw - length) / sqrt(length);
-    auto pvalue = std::erfc(sobs / SQRT2);
+    double squared_sum = 0;
+    for (auto i = 0; i < countBlocks; ++i) {
+        auto hw = HammingWeight(sample, i * blockLength, blockLength);
+        auto pi = hw / static_cast<double>(blockLength);
+        squared_sum += (pi - 0.5) * (pi - 0.5);
+    }
+    auto chisquare = 4 * blockLength * squared_sum;
 
-    logstream << "count 1s = " << hw << ", Sobs = " << sobs;
+    return chisquare;
+}
+
+std::vector<randomness_result_t> BlockFrequencyTest::Evaluate(const Sample& sample)
+{
+    blockLength = 128;    
+    auto countBlocks = sample.BinaryData().size() / blockLength;
+    auto chisquare = CalculateStatistic(sample, blockLength, countBlocks);
+    auto pvalue = igammac(countBlocks/2.0, chisquare/2.0);
 
     auto result = std::vector<randomness_result_t>{};
-    result.push_back(randomness_result_t {Name(), ShortName(), "", pvalue});
+    result.push_back(randomness_result_t {Name(), ShortName(), "m = 128", pvalue});
+
+    logstream << "countBlocks = " << countBlocks << ", 𝛘² = " << chisquare;
     
     return result;
 }

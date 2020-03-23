@@ -25,9 +25,10 @@
 #ifndef __RANDOMNESS_SP800_22_STATISTICAL_TEST_H__
 #define __RANDOMNESS_SP800_22_STATISTICAL_TEST_H__
 
+#include <cmath>
 #include <string>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include "../common/sample.h"
 
@@ -35,29 +36,26 @@ namespace randomness { namespace sp800_22 {
 
     using namespace randomness::common;
 
+    typedef struct {
+        std::string name;
+        std::string shortname;
+        std::string param;
+        double pvalue;
+    } randomness_result_t;
+
     class StatisticalTest 
     {
     protected:
         std::ostringstream logstream;
-        std::vector<double> pvalues;
-        std::vector<std::string> descriptions;
     
     public:
-        std::vector<double> PValues() const {
-            return pvalues;
-        }
-
-        std::vector<std::string> Descriptions() const {
-            return descriptions;
-        }
-
         std::string Log() const {
             return logstream.str();
         }
 
         virtual const std::string Name() const = 0;
         virtual const std::string ShortName() const = 0;
-        virtual void Run(const Sample& sample) = 0;
+        virtual std::vector<randomness_result_t> Evaluate(const Sample& sample) = 0;
     };
 }}
 

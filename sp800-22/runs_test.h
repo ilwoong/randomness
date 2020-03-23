@@ -22,14 +22,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
-#define __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
+#ifndef __RANDOMNESS_SP800_22_RUNS_TEST_H__
+#define __RANDOMNESS_SP800_22_RUNS_TEST_H__
 
 #include "statistical_test.h"
 
 namespace randomness { namespace sp800_22 {
     
-    class MonobitTest : public StatisticalTest 
+    class RunsTest : public StatisticalTest 
     {
     public:
         const std::string Name() const override;

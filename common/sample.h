@@ -33,19 +33,16 @@ namespace randomness { namespace common {
     class Sample
     {
     private:
-        std::vector<uint8_t> binSymbols;
-        std::vector<uint8_t> octSymbols;
+        std::vector<uint8_t> binarySymbols;
+        std::vector<uint8_t> octalSymbols;
 
     public:
         void AppendBit(uint8_t value);        
         void AppendByte(uint8_t value);
         void AppendBytes(const uint8_t* data, size_t length);
 
-        size_t BitLength() const;
-        size_t ByteLength() const;
-
-        const uint8_t* BitData() const;
-        const uint8_t* ByteData() const;
+        const std::vector<uint8_t>& BinaryData() const;
+        const std::vector<uint8_t>& OctalData() const;
     };
 }}
 

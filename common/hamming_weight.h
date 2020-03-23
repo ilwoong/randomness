@@ -22,20 +22,19 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
-#define __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
+#ifndef __RANDOMNESS_COMMON_HAMMING_WEIGHT_H__
+#define __RANDOMNESS_COMMON_HAMMING_WEIGHT_H__
 
-#include "statistical_test.h"
+#include "sample.h"
 
-namespace randomness { namespace sp800_22 {
+namespace randomness { namespace common {
+
+    uint8_t HammingWeight(uint8_t data);
+
+    size_t HammingWeight(const Sample& sample);
+    size_t HammingWeight(const std::vector<uint8_t>& sample);
+    size_t HammingWeight(const Sample& sample, size_t offset, size_t length);
     
-    class MonobitTest : public StatisticalTest 
-    {
-    public:
-        const std::string Name() const override;
-        const std::string ShortName() const override;
-        std::vector<randomness_result_t> Evaluate(const Sample& sample) override;
-    };
 }}
 
 #endif

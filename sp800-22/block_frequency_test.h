@@ -22,15 +22,18 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
-#define __RANDOMNESS_SP800_22_MONOBIT_TEST_H__
+#ifndef __RANDOMNESS_SP800_22_BLOCK_FREQUENCY_TEST_H__
+#define __RANDOMNESS_SP800_22_BLOCK_FREQUENCY_TEST_H__
 
 #include "statistical_test.h"
 
 namespace randomness { namespace sp800_22 {
     
-    class MonobitTest : public StatisticalTest 
+    class BlockFrequencyTest : public StatisticalTest 
     {
+    private:
+        size_t blockLength;
+
     public:
         const std::string Name() const override;
         const std::string ShortName() const override;

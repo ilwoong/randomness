@@ -28,14 +28,14 @@ using namespace randomness::common;
 
 void Sample::AppendBit(uint8_t value)
 {
-    binSymbols.push_back(value);
+    binarySymbols.push_back(value);
 }
 
 void Sample::AppendByte(uint8_t value)
 {
-    octSymbols.push_back(value);
+    octalSymbols.push_back(value);
     for (auto i = 0; i < 8; ++i) {
-        binSymbols.push_back((value & 0x80) >> 7);
+        binarySymbols.push_back((value & 0x80) >> 7);
         value <<= 1;
     }
 }
@@ -47,22 +47,12 @@ void Sample::AppendBytes(const uint8_t* data, size_t length)
     }
 }
 
-size_t Sample::BitLength() const 
+const std::vector<uint8_t>& Sample::BinaryData() const
 {
-    return binSymbols.size();
+    return binarySymbols;
 }
 
-size_t Sample::ByteLength() const 
+const std::vector<uint8_t>& Sample::OctalData() const
 {
-    return octSymbols.size();
-}
-
-const uint8_t* Sample::BitData() const
-{
-    return binSymbols.data();
-}
-
-const uint8_t* Sample::ByteData() const
-{
-    return octSymbols.data();
+    return octalSymbols;
 }
