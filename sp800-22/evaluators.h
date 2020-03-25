@@ -28,5 +28,6 @@
 #include "monobit_test.h"
 #include "block_frequency_test.h"
 #include "runs_test.h"
+#include "longest_run_test.h"
 
 #endif

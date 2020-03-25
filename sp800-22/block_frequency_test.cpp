@@ -40,6 +40,11 @@ const std::string BlockFrequencyTest::ShortName() const
     return "Blk.Freq.";
 }
 
+size_t BlockFrequencyTest::MinimumLengthInBits() const 
+{
+    return 100;
+}
+
 static double CalculateStatistic(const Sample& sample, size_t blockLength, size_t countBlocks)
 {
     double squared_sum = 0;

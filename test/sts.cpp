@@ -40,6 +40,7 @@ std::vector<std::shared_ptr<StatisticalTest>> PopulateTests()
     tests.push_back(std::make_shared<MonobitTest>());
     tests.push_back(std::make_shared<BlockFrequencyTest>());
     tests.push_back(std::make_shared<RunsTest>());
+    tests.push_back(std::make_shared<LongestRunTest>());
 
     return tests;
 }

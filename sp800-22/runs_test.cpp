@@ -39,6 +39,11 @@ const std::string RunsTest::ShortName() const
     return "Runs";
 }
 
+size_t RunsTest::MinimumLengthInBits() const 
+{
+    return 100;
+}
+
 static size_t TotalNumberOfOnes(const Sample& sample)
 {
     auto data = sample.OctalData();

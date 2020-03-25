@@ -22,41 +22,33 @@
  * THE SOFTWARE.
  */
 
-#ifndef __RANDOMNESS_SP800_22_STATISTICAL_TEST_H__
-#define __RANDOMNESS_SP800_22_STATISTICAL_TEST_H__
+#ifndef __RANDOMNESS_SP800_22_LONGEST_RUN_OF_ONES_IN_A_BLOCK_H__
+#define __RANDOMNESS_SP800_22_LONGEST_RUN_OF_ONES_IN_A_BLOCK_H__
 
-#include <cmath>
-#include <string>
-#include <sstream>
-#include <vector>
-
-#include "../common/sample.h"
+#include "statistical_test.h"
 
 namespace randomness { namespace sp800_22 {
-
-    using namespace randomness::common;
-
-    typedef struct {
-        std::string name;
-        std::string shortname;
-        std::string param;
-        double pvalue;
-    } randomness_result_t;
-
-    class StatisticalTest 
-    {
-    protected:
-        std::ostringstream logstream;
     
+    class LongestRunTest : public StatisticalTest 
+    {
+    private:
+        size_t blockLength;
+        size_t countBlocks;
+        size_t dof;
+        const double* pi;
+        const size_t* range;
+        std::vector<size_t> frequencies;
+        
     public:
-        std::string Log() const {
-            return logstream.str();
-        }
+        const std::string Name() const override;
+        const std::string ShortName() const override;
+        size_t MinimumLengthInBits() const override;
+        std::vector<randomness_result_t> Evaluate(const Sample& sample) override;
 
-        virtual const std::string Name() const = 0;
-        virtual const std::string ShortName() const = 0;
-        virtual size_t MinimumLengthInBits() const = 0;
-        virtual std::vector<randomness_result_t> Evaluate(const Sample& sample) = 0;
+    private:
+        void Initialize(size_t length);
+        double CalculateStatistic(const Sample& sample);        
+        void UpdateFrequencies(size_t longest_run);
     };
 }}
 

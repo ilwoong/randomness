@@ -9,6 +9,7 @@ SRC_SP800_22 = \
 	sp800-22/monobit_test.cpp \
 	sp800-22/block_frequency_test.cpp \
 	sp800-22/runs_test.cpp \
+	sp800-22/longest_run_test.cpp \
 
 SRC_SP800_90B = \
 	algorithm/lcp_array.cpp \

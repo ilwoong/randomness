@@ -37,6 +37,7 @@ namespace randomness { namespace sp800_22 {
     public:
         const std::string Name() const override;
         const std::string ShortName() const override;
+        size_t MinimumLengthInBits() const override;
         std::vector<randomness_result_t> Evaluate(const Sample& sample) override;
     };
 }}

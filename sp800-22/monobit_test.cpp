@@ -41,6 +41,11 @@ const std::string MonobitTest::ShortName() const
     return "Monobit";
 }
 
+size_t MonobitTest::MinimumLengthInBits() const 
+{
+    return 100;
+}
+
 std::vector<randomness_result_t> MonobitTest::Evaluate(const Sample& sample)
 {
     auto length = sample.BinaryData().size();

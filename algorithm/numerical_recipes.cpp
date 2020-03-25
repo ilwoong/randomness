@@ -42,7 +42,7 @@ double randomness::algorithm::igamma(double x, double a)
         return 0.0;
     }
 
-    if (x >= 1.0 && x > a) {
+    if ((x > 1.0) && (x > a)) {
         return 1.e0 - igammac(a, x);
     }
 
@@ -66,7 +66,7 @@ double randomness::algorithm::igamma(double x, double a)
     return ans * ax / a;
 }
 
-double randomness::algorithm::igammac(double x, double a)
+double randomness::algorithm::igammac(double a, double x)
 {
     double ans, ax, c, yc, r, t, y, z;
     double pk, pkm1, pkm2, qk, qkm1, qkm2;
@@ -82,7 +82,7 @@ double randomness::algorithm::igammac(double x, double a)
     ax = a * log(x) - x - std::lgamma(a);
 
     if (ax < -MAXLOG) {
-        return 1.0;
+        return 0.0;
     }
     ax = exp(ax);
 
