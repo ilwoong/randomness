@@ -28,28 +28,6 @@ size_t LongestRunTest::MinimumLengthInBits() const
     return 128;
 }
 
-static size_t FindLongestRun(const uint8_t* data, size_t offset, size_t blockLength)
-{
-    size_t longest = 0;
-    size_t run = 0;
-    
-    data += offset;
-    for (size_t i = 0; i < blockLength; ++i) {
-        if (*(data++) == 1) {
-            run += 1;
-        } 
-        else {
-            if (longest < run) {
-                longest = run;
-            }
-
-            run = 0;
-        }
-    }
-
-    return longest;
-}
-
 std::vector<randomness_result_t> LongestRunTest::Evaluate(const Sample& sample)
 {
     Initialize(sample.BinaryData().size());
@@ -67,45 +45,71 @@ std::vector<randomness_result_t> LongestRunTest::Evaluate(const Sample& sample)
 
 void LongestRunTest::Initialize(size_t length)
 {
-    blockLength = 8;
-    dof = 3;
-    pi = PI3;
-    range = RANGE3;
-
-    if (length >= 6272) {
-        blockLength = 128;
-        dof = 5;
-        pi = PI5;
-        range = RANGE5;
+    if (length < 128) {
+        throw std::invalid_argument("sample length is too short");
     }
-
-    if (length >= 750000) {
-        blockLength = 10000;
-        dof = 6;
-        pi = PI6;
-        range = RANGE6;
+    else if (length < 6272) {
+        Initialize(8, 3, PI3, RANGE3);
+    }
+    else if (length < 750000) {
+        Initialize(128, 5, PI5, RANGE5);
+    }
+    else {
+        Initialize(10000, 6, PI6, RANGE6);
     }
 
     countBlocks = length / blockLength;
     frequencies.assign(dof + 1, 0);
 }
 
+void LongestRunTest::Initialize(size_t blockLength, size_t dof, const double* pi, const size_t* range)
+{
+    this->blockLength = blockLength;
+    this->dof = dof;
+    this->pi = pi;
+    this->range = range;
+}
+
 double LongestRunTest::CalculateStatistic(const Sample& sample)
 {
+    BuildFrequencyTable(sample.BinaryData().data());
+
     auto sum = 0.0;
-    auto data = sample.BinaryData();
-
-    for (auto i = 0; i < data.size(); i += blockLength) {
-        auto longest = FindLongestRun(data.data(), i, blockLength);
-        UpdateFrequencies(longest);
-    }
-
-    for (auto i = 0; i <= dof; ++i) {
+    for (size_t i = 0; i <= dof; ++i) {
         auto term = frequencies[i] - countBlocks * pi[i];
         sum += term * term / (countBlocks * pi[i]);
     }
 
     return sum;
+}
+
+void LongestRunTest::BuildFrequencyTable(const uint8_t* block)
+{
+    for (auto i = 0; i < countBlocks; ++i, block += blockLength) {
+        auto longest = FindLongestRun(block);
+        UpdateFrequencies(longest);
+    }
+}
+
+size_t LongestRunTest::FindLongestRun(const uint8_t* block)
+{
+    size_t longest = 0;
+    size_t run = 0;
+    
+    for (size_t i = 0; i < blockLength; ++i) {
+        if (*(block++) == 1) {
+            run += 1;
+        } 
+        else {
+            if (longest < run) {
+                longest = run;
+            }
+
+            run = 0;
+        }
+    }
+
+    return longest;
 }
 
 void LongestRunTest::UpdateFrequencies(size_t longest)
@@ -114,15 +118,10 @@ void LongestRunTest::UpdateFrequencies(size_t longest)
         frequencies[0] += 1;
         return;
     }
-
-    for (auto k = 1; k < dof; ++k) {
-        if (longest == range[k]) {
-            frequencies[k] += 1;
-            return;
-        }
-    }
-
-    if (longest >= range[dof]) {
+    else if (longest >= range[dof]) {
         frequencies[dof] += 1;
+        return;
     }
+
+    frequencies[longest - range[0]] += 1;
 }

@@ -38,7 +38,7 @@ namespace randomness { namespace common {
 
     public:
         void AppendBit(uint8_t value);        
-        void AppendByte(uint8_t value);
+        void AppendByte(uint8_t value, size_t bitcount = 8);
         void AppendBytes(const uint8_t* data, size_t length);
 
         const std::vector<uint8_t>& BinaryData() const;

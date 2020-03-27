@@ -47,8 +47,12 @@ namespace randomness { namespace sp800_22 {
 
     private:
         void Initialize(size_t length);
-        double CalculateStatistic(const Sample& sample);        
-        void UpdateFrequencies(size_t longest_run);
+        void Initialize(size_t blockLength, size_t dof, const double* pi, const size_t* range);
+        double CalculateStatistic(const Sample& sample);
+        
+        inline void BuildFrequencyTable(const uint8_t* block);
+        inline size_t FindLongestRun(const uint8_t* block);
+        inline void UpdateFrequencies(size_t longest_run);
     };
 }}
 

@@ -28,6 +28,10 @@ using namespace randomness::common;
 
 static constexpr size_t ChunkSize = 4096;
 
+static constexpr uint8_t BitMask[8] = { 
+    0b00000000, 0b10000000, 0b11000000, 0b11100000, 0b11110000, 0b11111000, 0b11111100, 0b11111110, 
+};
+
 void SampleReader::Open(const std::string& filepath)
 {
     Close();
@@ -60,18 +64,14 @@ SharePtrSample SampleReader::NextBits(size_t length)
     auto lenBits = length & 0x7;
 
     auto sample = NextBytes(lenBytes);
-    char buffer[1] = {0};
-    ifs.read(buffer, 1);
 
-    uint8_t mask = 0x80;
-    auto bits = static_cast<uint8_t>(buffer[0]);
-    for (auto i = 0; i < lenBits; ++i) {
-        sample->AppendBit((bits & 0x80) >> 7);
-        bits <<= 1;
-        mask = 0x80 | (mask >> 1);
+    if (lenBits > 0) {
+        char buffer[1] = {0};
+        ifs.read(buffer, 1);
+
+        auto data = static_cast<uint8_t>(buffer[0] & BitMask[lenBits]);
+        sample->AppendByte(data, lenBits);
     }
-    
-    sample->AppendByte(static_cast<uint8_t>(buffer[0]) & mask);
 
     return sample;
 }

@@ -26,6 +26,7 @@
 #define __RANDOMNESS_SP800_22_STATISTICAL_TEST_H__
 
 #include <cmath>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <vector>

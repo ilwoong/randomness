@@ -31,10 +31,10 @@ void Sample::AppendBit(uint8_t value)
     binarySymbols.push_back(value);
 }
 
-void Sample::AppendByte(uint8_t value)
+void Sample::AppendByte(uint8_t value, size_t bitcount)
 {
     octalSymbols.push_back(value);
-    for (auto i = 0; i < 8; ++i) {
+    for (auto i = 0; i < bitcount; ++i) {
         binarySymbols.push_back((value & 0x80) >> 7);
         value <<= 1;
     }

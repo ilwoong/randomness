@@ -68,6 +68,9 @@ int main(int argc, const char** argv)
     reader.Open("./samples/random_1MB.bin");
     auto sample = reader.NextBits(1000000);
 
+    std::cout << sample->BinaryData().size() << " bits / ";
+    std::cout << sample->OctalData().size() << " bytes samples were loaded" << std::endl;
+
     auto tests = PopulateTests();
     for (auto test : tests){
         auto results = test->Evaluate(*sample);
